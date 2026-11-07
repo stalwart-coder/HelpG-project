@@ -27,7 +27,7 @@ export async function requestWithdrawal(userId, data) {
     throw new ApiError(400, 'Minimum withdrawal amount is ₹1.');
   }
 
-  console.log("USDK userID " + userId);
+
 
   // Get or create wallet
   let wallet = await Wallet.findOne({ userId });

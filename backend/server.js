@@ -44,16 +44,41 @@ process.on('unhandledRejection', (reason) => {
 // ── Express app setup ────────────────────────────────────────────────────────
 const app = express();
 
+// Trust reverse proxy (Render, Vercel, Nginx, AWS ALB) for accurate client IP detection & rate limiting
+app.set('trust proxy', 1);
+
 // ── Security headers ─────────────────────────────────────────────────────────
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  env.cors.frontendUrl,
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:3000',
+];
+
 app.use(
   cors({
-    origin: env.cors.frontendUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, mobile apps, server-to-server)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin === env.cors.frontendUrl ||
+        (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.onrender.com') ||
+        env.isDev
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   })
 );
 

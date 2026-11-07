@@ -1,0 +1,19 @@
+{
+  "name": "helpji-workspace",
+  "version": "1.0.0",
+  "description": "HelpJi Local Help Platform",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix frontened",
+    "dev:frontend": "npm run dev --prefix frontened",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build --prefix frontened",
+    "lint": "npm run lint --prefix frontened",
+    "test:backend": "npm run test --prefix backend",
+    "start": "npm run dev --prefix frontened"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

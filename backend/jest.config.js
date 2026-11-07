@@ -6,6 +6,7 @@ export default {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   testTimeout: 60000,
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   collectCoverage: false,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'clover'],

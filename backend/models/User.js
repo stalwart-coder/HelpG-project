@@ -43,6 +43,20 @@ const userSchema = new mongoose.Schema(
     fcmToken: { type: String, default: '' },
     refreshToken: { type: String, select: false },
     lastLoginAt: { type: Date },
+
+    // ── Firebase / Social Auth ─────────────────────────────────────────────
+    // firebaseUid is populated when user signs in via Google (Firebase)
+    firebaseUid: { type: String, unique: true, sparse: true },
+    googleEmail: { type: String, trim: true, lowercase: true },
+    // 'local' = email/password, 'google' = Firebase Google Sign-In
+    authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
+
+    // ── Location (for helper radar) ───────────────────────────────────────
+    location: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number], default: [0, 0] }, // [lng, lat]
+    },
+    locality: { type: String, default: '' },
   },
   {
     timestamps: true,
@@ -57,8 +71,9 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// ── Indexes (unique is already set at field level; only add compound indexes here) ─
+// ── Indexes ─────────────────────────────────────────────────────────────────
 userSchema.index({ role: 1 });
+userSchema.index({ location: '2dsphere' }); // for geospatial helper radar queries
 
 // ── Pre-save hook: hash password ────────────────────────────────────────────
 userSchema.pre('save', async function (next) {

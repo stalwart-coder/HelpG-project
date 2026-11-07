@@ -1,0 +1,245 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════════════════════════
+   HelpJi Design System — index.css
+   Warm Earth + Trust Teal · Sora + DM Sans + JetBrains Mono
+   Modern, High-Contrast Light & Dark Themes
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Light Mode Custom Properties ─────────────────────────────────── */
+:root {
+  /* Brand accents */
+  --hj-saffron:       #F4831F;
+  --hj-saffron-deep:  #E06A08;
+  --hj-saffron-light: #FFF0E0;
+  --hj-saffron-glow:  rgba(244, 131, 31, 0.25);
+
+  --hj-teal:          #1CA89C;
+  --hj-teal-deep:     #157F75;
+  --hj-teal-light:    #E0F7F5;
+  --hj-teal-glow:     rgba(28, 168, 156, 0.25);
+
+  /* Typography & Ink */
+  --hj-ink:           #1A1A2E;
+  --hj-ink-soft:      #5C5870;
+  --hj-ink-muted:     #8A869E;
+  --hj-ink-faint:     #C9C7D4;
+
+  /* Surfaces & Paper */
+  --hj-paper:         #FAFAF7;
+  --hj-paper-card:    #FFFFFF;
+  --hj-paper-warm:    #FEF8F3;
+
+  /* Borders */
+  --hj-line:          #E8E4DE;
+  --hj-line-strong:   #CCC8C0;
+
+  /* Semantic */
+  --hj-pulse:         #22C55E;
+  --hj-alert:         #EF4444;
+  --hj-caution:       #F59E0B;
+  --hj-banyan:        #22A355;
+
+  /* Shadows */
+  --hj-shadow-card:   0 2px 8px rgba(26,26,46,0.06), 0 1px 2px rgba(26,26,46,0.04);
+  --hj-shadow-raised: 0 6px 20px rgba(26,26,46,0.10);
+  --hj-shadow-float:  0 12px 40px rgba(26,26,46,0.14);
+}
+
+/* ── Dark Mode Custom Properties (Sleek Slate/Ink Theme) ──────────── */
+.dark, [data-theme="dark"] {
+  /* Surfaces */
+  --hj-paper:         #0A0F1D;  /* Deep dark canvas */
+  --hj-paper-card:    #131B2E;  /* Rich elevated card */
+  --hj-paper-warm:    #1A243B;  /* Slightly elevated/input surface */
+
+  /* Borders */
+  --hj-line:          #23304E;  /* Clean crisp dark border */
+  --hj-line-strong:   #34466D;
+
+  /* Typography */
+  --hj-ink:           #F8FAFC;  /* Crisp bright white for headlines & primary text */
+  --hj-ink-soft:      #94A3B8;  /* Clear readable secondary text */
+  --hj-ink-muted:     #64748B;  /* Tertiary labels */
+  --hj-ink-faint:     #334155;
+
+  /* Shadows */
+  --hj-shadow-card:   0 4px 20px rgba(0,0,0,0.60);
+  --hj-shadow-raised: 0 8px 30px rgba(0,0,0,0.75);
+  --hj-shadow-float:  0 16px 48px rgba(0,0,0,0.90);
+}
+
+/* ── Base Layer ───────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--hj-paper);
+    color: var(--hj-ink);
+  }
+
+  body {
+    background-color: var(--hj-paper);
+    color: var(--hj-ink);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  ::selection {
+    background-color: rgba(244, 131, 31, 0.3);
+    color: #F4831F;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Sora', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--hj-ink);
+  }
+}
+
+/* ── Dark Mode Universal Overrides ────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+}
+
+/* Transform explicit bg-white in dark mode to card background */
+.dark .bg-white:not([data-keep-white]):not(.keep-white) {
+  background-color: var(--hj-paper-card) !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-gray-50,
+.dark .bg-stone-50,
+.dark .bg-zinc-50,
+.dark .bg-\[\#FBFBFA\],
+.dark .bg-\[\#FAFAF7\] {
+  background-color: var(--hj-paper) !important;
+}
+
+.dark .bg-slate-100,
+.dark .bg-gray-100 {
+  background-color: var(--hj-paper-warm) !important;
+}
+
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-zinc-900 {
+  color: var(--hj-ink) !important;
+}
+
+.dark .text-slate-800,
+.dark .text-gray-800 {
+  color: #F1F5F9 !important;
+}
+
+.dark .text-slate-700,
+.dark .text-gray-700,
+.dark .text-slate-600,
+.dark .text-gray-600 {
+  color: var(--hj-ink-soft) !important;
+}
+
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-line {
+  border-color: var(--hj-line) !important;
+}
+
+.dark .border-slate-100,
+.dark .border-gray-100 {
+  border-color: var(--hj-line) !important;
+}
+
+/* Modals & Dialogs in Dark Mode */
+.dark .dialog-content,
+.dark [role="dialog"] {
+  background-color: var(--hj-paper-card) !important;
+  color: var(--hj-ink) !important;
+  border-color: var(--hj-line) !important;
+}
+
+/* Tables in Dark Mode */
+.dark table {
+  color: var(--hj-ink);
+}
+
+.dark th {
+  background-color: var(--hj-paper-warm);
+  color: var(--hj-ink-soft);
+  border-color: var(--hj-line);
+}
+
+.dark td {
+  border-color: var(--hj-line);
+}
+
+/* Inputs & selects in Dark Mode */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.keep-light),
+.dark select:not(.keep-light),
+.dark textarea:not(.keep-light) {
+  background-color: var(--hj-paper-warm);
+  border-color: var(--hj-line);
+  color: var(--hj-ink);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: var(--hj-ink-muted);
+}
+
+/* ── Utility Classes ──────────────────────────────────────────────── */
+.hj-card {
+  background: var(--hj-paper-card);
+  border: 1px solid var(--hj-line);
+  box-shadow: var(--hj-shadow-card);
+  border-radius: 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hj-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hj-ink-muted);
+}
+
+.hj-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--hj-line);
+  background: var(--hj-paper-card);
+  color: var(--hj-ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hj-input:focus {
+  border-color: #F4831F;
+  box-shadow: 0 0 0 3px rgba(244, 131, 31, 0.15);
+}
+
+/* ── Animation Utilities ──────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

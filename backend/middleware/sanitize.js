@@ -16,8 +16,8 @@ function encodeHtmlEntities(str) {
 
   return str
     .replace(/&/g, '&amp;')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
     .replace(/"/g, '"')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;');
@@ -58,17 +58,18 @@ export function sanitizeInput(req, _res, next) {
   }
 
   if (req.query && typeof req.query === 'object') {
-    req.query = sanitizeObject(req.query);
+    for (const key of Object.keys(req.query)) {
+      req.query[key] = sanitizeObject(req.query[key]);
+    }
   }
 
   if (req.params && typeof req.params === 'object') {
-    req.params = sanitizeObject(req.params);
+    for (const key of Object.keys(req.params)) {
+      req.params[key] = sanitizeObject(req.params[key]);
+    }
   }
 
   next();
 }
 
 export default sanitizeInput;
-</parameter>
-</invoke>
-</｜｜DSML｜｜tool_calls>

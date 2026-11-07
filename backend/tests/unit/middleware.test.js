@@ -1,6 +1,4 @@
-/**
- * Unit tests for Middleware functions.
- */
+import { jest } from '@jest/globals';
 import { authenticate, authorize } from '../../middleware/auth.js';
 import { sanitizeInput } from '../../middleware/sanitize.js';
 import User from '../../models/User.js';
@@ -9,36 +7,39 @@ import { createUser } from '../fixtures/factories.js';
 import jwt from 'jsonwebtoken';
 
 describe('Auth Middleware', () => {
-  function mockReqRes(token, user = null) {
-    const req = {
-      headers: token ? { authorization: `Bearer ${token}` } : {},
-      cookies: {},
-      user,
-    };
-    const res = {};
-    const next = jest.fn();
-    return { req, res, next };
+  function runAuth(token) {
+    return new Promise((resolve) => {
+      const req = {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+        cookies: {},
+      };
+      const res = {};
+      const next = jest.fn((err) => resolve({ req, res, next, err }));
+      authenticate(req, res, next);
+    });
   }
 
   describe('authenticate', () => {
-    it('should throw 401 if no token provided', async () => {
-      const { req, res, next } = mockReqRes(null);
-      await expect(authenticate(req, res, next)).rejects.toThrow(ApiError);
+    it('should pass error to next if no token provided', async () => {
+      const { next, err } = await runAuth(null);
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(err.statusCode).toBe(401);
     });
 
-    it('should throw 401 if token is invalid', async () => {
-      const { req, res, next } = mockReqRes('invalid-token-here');
-      await expect(authenticate(req, res, next)).rejects.toThrow(ApiError);
+    it('should pass error to next if token is invalid', async () => {
+      const { next, err } = await runAuth('invalid-token-here');
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(err.statusCode).toBe(401);
     });
 
-    it('should throw 401 if user is deactivated', async () => {
+    it('should pass error to next if user is deactivated', async () => {
       const user = await createUser({ isActive: false });
-      // Create a valid JWT token with the correct secret from env
       const tokenService = await import('../../services/tokenService.js');
       const token = tokenService.generateAccessToken(user);
-      const { req, res, next } = mockReqRes(token);
+      const { next, err } = await runAuth(token);
 
-      await expect(authenticate(req, res, next)).rejects.toThrow(/deactivated/i);
+      expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+      expect(err.message).toMatch(/deactivated/i);
     });
   });
 
@@ -82,7 +83,7 @@ describe('Sanitize Middleware', () => {
 
     sanitizeInput(req, res, next);
     expect(next).toHaveBeenCalled();
-    expect(req.body.name).toBe('<script>alert("xss")</script>');
+    expect(req.body.name).toBe('&lt;script&gt;alert("xss")&lt;&#x2F;script&gt;');
     expect(req.body.age).toBe(25);
   });
 
@@ -96,7 +97,7 @@ describe('Sanitize Middleware', () => {
     const next = jest.fn();
 
     sanitizeInput(req, res, next);
-    expect(req.body.user.name).toBe('<img onerror="alert(1)" src=x>');
+    expect(req.body.user.name).toBe('&lt;img onerror="alert(1)" src=x&gt;');
   });
 
   it('should sanitize arrays', () => {
@@ -109,7 +110,7 @@ describe('Sanitize Middleware', () => {
     const next = jest.fn();
 
     sanitizeInput(req, res, next);
-    expect(req.body.tags[0]).toBe('<b>bold</b>');
+    expect(req.body.tags[0]).toBe('&lt;b&gt;bold&lt;&#x2F;b&gt;');
     expect(req.body.tags[1]).toBe('normal');
   });
 
@@ -130,7 +131,7 @@ describe('Sanitize Middleware', () => {
     const res = {};
     const next = jest.fn();
     sanitizeInput(req, res, next);
-    expect(req.query.search).toBe('<script>alert("xss")</script>');
+    expect(req.query.search).toBe('&lt;script&gt;alert("xss")&lt;&#x2F;script&gt;');
   });
 });
 

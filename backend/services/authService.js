@@ -2,8 +2,10 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 import Otp from '../models/Otp.js';
 import { generateAuthTokens, verifyRefreshToken } from './tokenService.js';
+import { verifyFirebaseToken } from './firebaseAdmin.js';
 import ApiError from '../utils/ApiError.js';
 import env from '../config/env.js';
+import logger from '../utils/logger.js';
 
 // ── Constants ─────────────────────────────────────────────────────────────
 const OTP_LENGTH = 6;
@@ -136,13 +138,15 @@ export async function sendOtp(phone, purpose) {
     expiresAt,
   });
 
-  // In production, send OTP via SMS gateway here.
-  console.log(`[OTP] To ${phone}: ${otpCode} (purpose: ${purpose})`);
+  // In production, send OTP via SMS gateway (never log OTP in production)
+  if (env.isDev || process.env.NODE_ENV === 'test') {
+    logger.debug(`[OTP] To ${phone}: ${otpCode} (purpose: ${purpose})`);
+  }
 
   const response = { message: 'OTP sent successfully' };
 
-  // In development mode, return OTP for testing
-  if (env.isDev) {
+  // In development/test mode, return OTP for testing
+  if (env.isDev || process.env.NODE_ENV === 'test') {
     response.otp = otpCode;
   }
 
@@ -331,4 +335,84 @@ export async function logout(userId) {
     { new: true }
   );
 }
+
+/**
+ * Handle Firebase Google Sign-In / Sign-Up
+ * Verifies ID token, looks up or creates user account, returns HelpJi JWT session
+ * @param {string} idToken - Firebase Google Auth ID Token
+ * @param {string} role - 'customer' or 'helper'
+ * @returns {Object} { user, accessToken, refreshToken }
+ */
+export async function firebaseGoogleLogin(idToken, role = 'customer') {
+  if (!idToken) {
+    throw new ApiError(400, 'Firebase ID token is required');
+  }
+
+  let decoded;
+  try {
+    decoded = await verifyFirebaseToken(idToken);
+  } catch (err) {
+    logger.error('Firebase token verification error', { error: err.message });
+    throw new ApiError(401, `Invalid Firebase token: ${err.message}`);
+  }
+
+  const { uid, email, name, picture } = decoded;
+
+  // Search by firebaseUid or matching email
+  let user = await User.findOne({
+    $or: [
+      { firebaseUid: uid },
+      ...(email ? [{ email }] : []),
+    ],
+  });
+
+  if (!user) {
+    const assignedRole = ['customer', 'helper'].includes(role) ? role : 'customer';
+    user = new User({
+      name: name || (email ? email.split('@')[0] : 'HelpJi User'),
+      email: email || undefined,
+      googleEmail: email || undefined,
+      firebaseUid: uid,
+      authProvider: 'google',
+      avatar: picture || '',
+      role: assignedRole,
+      isEmailVerified: Boolean(email),
+      isActive: true,
+    });
+    await user.save();
+  } else {
+    let modified = false;
+    if (!user.firebaseUid) {
+      user.firebaseUid = uid;
+      modified = true;
+    }
+    if (picture && !user.avatar) {
+      user.avatar = picture;
+      modified = true;
+    }
+    if (email && !user.googleEmail) {
+      user.googleEmail = email;
+      modified = true;
+    }
+    if (modified) {
+      await user.save({ validateBeforeSave: false });
+    }
+  }
+
+  if (!user.isActive) {
+    throw new ApiError(401, 'Account has been deactivated. Please contact support.');
+  }
+
+  const tokens = generateAuthTokens(user);
+  user.refreshToken = tokens.refreshToken;
+  user.lastLoginAt = new Date();
+  await user.save({ validateBeforeSave: false });
+
+  return {
+    user: user.toJSON(),
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+  };
+}
+
 

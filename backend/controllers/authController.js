@@ -28,7 +28,8 @@ const signup = asyncHandler(async (req, res) => {
  * Authenticate user and return tokens.
  */
 const login = asyncHandler(async (req, res) => {
-  const { emailOrPhone, password } = req.body;
+  const emailOrPhone = req.body.emailOrPhone || req.body.email || req.body.phone;
+  const { password } = req.body;
   const result = await authService.login(emailOrPhone, password);
 
   // Set refresh token in HTTP-only cookie
@@ -42,6 +43,10 @@ const login = asyncHandler(async (req, res) => {
   return new ApiResponse(200, {
     user: result.user,
     accessToken: result.accessToken,
+    tokens: {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    },
   }, 'Login successful').send(res);
 });
 
@@ -149,9 +154,32 @@ const logout = asyncHandler(async (req, res) => {
   return new ApiResponse(200, null, 'Logged out successfully').send(res);
 });
 
+/**
+ * POST /api/auth/firebase-google
+ * Authenticate with Firebase Google ID token.
+ */
+const firebaseGoogle = asyncHandler(async (req, res) => {
+  const { idToken, role } = req.body;
+  const result = await authService.firebaseGoogleLogin(idToken, role);
+
+  // Set refresh token in HTTP-only cookie
+  res.cookie('refreshToken', result.refreshToken, {
+    httpOnly: true,
+    secure: req.secure,
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  return new ApiResponse(200, {
+    user: result.user,
+    accessToken: result.accessToken,
+  }, 'Google sign-in successful').send(res);
+});
+
 export {
   signup,
   login,
+  firebaseGoogle,
   sendOtp,
   verifyOtp,
   forgotPassword,
@@ -159,4 +187,5 @@ export {
   refreshToken,
   logout,
 };
+
 

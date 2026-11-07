@@ -14,20 +14,23 @@ import * as authController from '../controllers/authController.js';
 
 const router = Router();
 
-// ── All auth routes use the strict rate limiter ─────────────────────────
-router.use(authLimiter);
+// ── Firebase Google Sign-In (verify Firebase ID token → create/login user) ──
+router.post('/firebase-google', authLimiter, authController.firebaseGoogle);
 
-// ── Public routes ───────────────────────────────────────────────────────
-router.post('/signup', signupRules, validate, authController.signup);
-router.post('/login', loginRules, validate, authController.login);
-router.post('/send-otp', sendOtpRules, validate, authController.sendOtp);
-router.post('/verify-otp', verifyOtpRules, validate, authController.verifyOtp);
-router.post('/forgot-password', forgotPasswordRules, validate, authController.forgotPassword);
-router.post('/reset-password', resetPasswordRules, validate, authController.resetPassword);
+// ── Sensitive routes protected by authLimiter ──────────────────────────────
+router.post('/signup', authLimiter, signupRules, validate, authController.signup);
+router.post('/login', authLimiter, loginRules, validate, authController.login);
+router.post('/send-otp', authLimiter, sendOtpRules, validate, authController.sendOtp);
+router.post('/verify-otp', authLimiter, verifyOtpRules, validate, authController.verifyOtp);
+router.post('/forgot-password', authLimiter, forgotPasswordRules, validate, authController.forgotPassword);
+router.post('/reset-password', authLimiter, resetPasswordRules, validate, authController.resetPassword);
+
+// ── Token refresh (handled by globalLimiter, exempt from strict authLimiter) ───
 router.post('/refresh-token', authController.refreshToken);
 
-// ── Protected routes (require authentication) ──────────────────────────
+// ── Protected routes (require authentication) ──────────────────────────────
 router.post('/logout', authenticate, authController.logout);
 
 export default router;
+
 

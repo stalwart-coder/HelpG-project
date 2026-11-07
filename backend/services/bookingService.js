@@ -2,6 +2,7 @@ import Booking from '../models/Booking.js';
 import User from '../models/User.js';
 import ApiError from '../utils/ApiError.js';
 import logger from '../utils/logger.js';
+import { broadcastNewTask, notifyBookingUpdate } from '../socketServer.js';
 
 /**
  * @typedef {'pending'|'confirmed'|'in_progress'|'completed'|'cancelled'} BookingStatus
@@ -49,9 +50,16 @@ export async function createBooking(customerId, bookingData) {
     title: bookingData.title,
     description: bookingData.description || '',
     location: bookingData.location,
+    coordinates: {
+      type: 'Point',
+      coordinates: Array.isArray(bookingData.coordinates) && bookingData.coordinates.length === 2
+        ? [Number(bookingData.coordinates[0]), Number(bookingData.coordinates[1])]
+        : (bookingData.lng && bookingData.lat ? [Number(bookingData.lng), Number(bookingData.lat)] : [77.6245, 12.9352]),
+    },
     scheduledAt: new Date(bookingData.scheduledAt),
     duration: bookingData.duration || 'onetime',
     price: bookingData.price,
+    images: Array.isArray(bookingData.images) ? bookingData.images : [],
     platformFee: bookingData.platformFee || Math.round(bookingData.price * 0.05),
     totalAmount: bookingData.totalAmount || bookingData.price,
     timeline: [
@@ -65,6 +73,11 @@ export async function createBooking(customerId, bookingData) {
   });
 
   logger.info('Booking created', { bookingId: booking._id, customerId });
+  try {
+    broadcastNewTask(booking);
+  } catch (err) {
+    logger.warn('Socket broadcast error', { error: err.message });
+  }
   return booking;
 }
 
@@ -81,8 +94,12 @@ export async function getBookingById(bookingId, userId) {
   }
 
   // Authorization: must be customer, assigned helper, or admin
-  const isCustomer = booking.customer._id.toString() === userId;
-  const isHelper = booking.helper && booking.helper._id.toString() === userId;
+  const userStr = userId ? userId.toString() : '';
+  const customerIdStr = booking.customer?._id?.toString() || booking.customer?.toString() || '';
+  const helperIdStr = booking.helper?._id?.toString() || booking.helper?.toString() || '';
+
+  const isCustomer = customerIdStr === userStr;
+  const isHelper = helperIdStr === userStr;
   const isAdmin = false; // future
 
   if (!isCustomer && !isHelper && !isAdmin) {
@@ -163,20 +180,19 @@ export async function updateBookingStatus(bookingId, userId, newStatus, note = '
 
   assertValidTransition(booking.status, newStatus);
 
-  // Authorization: only helper or customer can update
-  const isHelper = booking.helper && booking.helper.toString() === userId;
-  const isCustomer = booking.customer.toString() === userId;
+  const userStr = userId ? userId.toString() : '';
+  const isHelper = booking.helper && booking.helper.toString() === userStr;
+  const isCustomer = booking.customer && booking.customer.toString() === userStr;
 
-  if (!isHelper && !isCustomer) {
-    throw new ApiError(403, 'You do not have permission to update this booking');
-  }
-
-  // If helper is accepting (confirmed), assign them
+  // If accepting a pending booking, user must be a helper
   if (newStatus === 'confirmed') {
-    if (!isHelper) {
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'helper') {
       throw new ApiError(403, 'Only a helper can accept a booking');
     }
     booking.helper = userId;
+  } else if (!isHelper && !isCustomer) {
+    throw new ApiError(403, 'You do not have permission to update this booking');
   }
 
   // Only helpers can mark as in_progress or completed
@@ -191,10 +207,17 @@ export async function updateBookingStatus(bookingId, userId, newStatus, note = '
     status: newStatus,
     timestamp: new Date(),
     note: note || `Status updated to ${newStatus}`,
-    by: isHelper ? 'helper' : 'customer',
+    by: isCustomer ? 'customer' : 'helper',
   });
 
   await booking.save();
+  await booking.populate('helper', 'name avatar phone');
+
+  try {
+    notifyBookingUpdate(bookingId, booking.customer, booking);
+  } catch (err) {
+    logger.warn('Socket notify error', { error: err.message });
+  }
 
   logger.info('Booking status updated', {
     bookingId,
@@ -214,8 +237,9 @@ export async function cancelBooking(bookingId, userId, { reason, notes = '' }) {
     throw new ApiError(404, 'Booking not found');
   }
 
-  const isCustomer = booking.customer.toString() === userId;
-  const isHelper = booking.helper && booking.helper.toString() === userId;
+  const userStr = userId ? userId.toString() : '';
+  const isCustomer = booking.customer && booking.customer.toString() === userStr;
+  const isHelper = booking.helper && booking.helper.toString() === userStr;
 
   if (!isCustomer && !isHelper) {
     throw new ApiError(403, 'You do not have permission to cancel this booking');
@@ -261,7 +285,8 @@ export async function rescheduleBooking(bookingId, userId, { newScheduledAt, rea
     throw new ApiError(404, 'Booking not found');
   }
 
-  const isCustomer = booking.customer.toString() === userId;
+  const userStr = userId ? userId.toString() : '';
+  const isCustomer = booking.customer && booking.customer.toString() === userStr;
 
   if (!isCustomer) {
     throw new ApiError(403, 'Only the customer can reschedule a booking');

@@ -91,6 +91,12 @@ describe('Auth API', () => {
     });
 
     it('should login with phone and password', async () => {
+      await createUser({
+        email: 'phoneapi@example.com',
+        password: 'password123',
+        phone: '+919876543213',
+      });
+
       const res = await request(app)
         .post('/api/auth/login')
         .send({ emailOrPhone: '+919876543213', password: 'password123' });
@@ -99,6 +105,12 @@ describe('Auth API', () => {
     });
 
     it('should return 401 for wrong password', async () => {
+      await createUser({
+        email: 'loginapi@example.com',
+        password: 'password123',
+        phone: '+919876543212',
+      });
+
       const res = await request(app)
         .post('/api/auth/login')
         .send({ emailOrPhone: 'loginapi@example.com', password: 'wrongpass' });

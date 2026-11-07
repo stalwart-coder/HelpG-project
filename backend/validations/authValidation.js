@@ -40,9 +40,14 @@ export const signupRules = [
  */
 export const loginRules = [
   body('emailOrPhone')
-    .notEmpty()
-    .withMessage('Email or phone number is required')
-    .trim(),
+    .custom((val, { req }) => {
+      const value = val || req.body.email || req.body.phone;
+      if (!value) {
+        throw new Error('Email or phone number is required');
+      }
+      req.body.emailOrPhone = value;
+      return true;
+    }),
 
   body('password')
     .notEmpty()

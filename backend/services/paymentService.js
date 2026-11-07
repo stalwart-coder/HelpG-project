@@ -346,11 +346,10 @@ export async function handlePaymentSuccess(data) {
   });
   await booking.save();
 
-  // Update customer's wallet balance (use transaction.userId which is the customer ID)
+  // Update customer's wallet metrics (record totalSpent)
   const customerId = transaction.userId;
   const wallet = await getOrCreateWallet(customerId);
-  wallet.balance -= booking.totalAmount;
-  wallet.totalEarned += booking.totalAmount;
+  wallet.totalSpent = (wallet.totalSpent || 0) + booking.totalAmount;
   await wallet.save();
 
   logger.info('Payment successful', {

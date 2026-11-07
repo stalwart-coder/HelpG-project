@@ -227,3 +227,16 @@ export const getBookingHistory = asyncHandler(async (req, res) => {
   return new ApiResponse(200, data, 'Booking history retrieved successfully').send(res);
 });
 
+// ═════════════════════════════════════════════════════════════════════════════
+// 13. NEARBY HELPER DISCOVERY (Customer Accessible)
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * GET /api/helpers/nearby
+ * Discover nearby online helpers within radius.
+ */
+export const getNearbyHelpers = asyncHandler(async (req, res) => {
+  const helpers = await helperService.getNearbyHelpers(req.query);
+  return new ApiResponse(200, { helpers, count: helpers.length }, 'Nearby helpers retrieved successfully').send(res);
+});
+

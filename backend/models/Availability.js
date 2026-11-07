@@ -65,7 +65,6 @@ const availabilitySchema = new mongoose.Schema(
   }
 );
 
-availabilitySchema.index({ userId: 1 });
 availabilitySchema.index({ isAvailable: 1 });
 
 const Availability = mongoose.model('Availability', availabilitySchema);

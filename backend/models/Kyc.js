@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
 /**
  * KYC (Know Your Customer) Verification Model
@@ -16,7 +16,6 @@ const kycSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
       unique: true,
-      index: true,
     },
     status: {
       type: String,

@@ -9,8 +9,8 @@ export const createBookingRules = [
     .notEmpty()
     .withMessage('Service category is required')
     .trim()
-    .isIn(['iron', 'vehicle', 'guard', 'event'])
-    .withMessage('Invalid service category'),
+    .isLength({ min: 2, max: 60 })
+    .withMessage('Category must be 2-60 characters'),
 
   body('title')
     .notEmpty()
@@ -39,16 +39,18 @@ export const createBookingRules = [
     .withMessage('Scheduled time must be a valid ISO date')
     .custom((value) => {
       const date = new Date(value);
-      if (date <= new Date()) {
-        throw new Error('Scheduled time must be in the future');
+      // Allow up to 10 minutes in the past for client clock differences / immediate tasks
+      if (date < new Date(Date.now() - 600000)) {
+        throw new Error('Scheduled time cannot be in the past');
       }
       return true;
     }),
 
   body('duration')
     .optional()
-    .isIn(['onetime', '1day', '2day'])
-    .withMessage('Duration must be onetime, 1day, or 2day'),
+    .trim()
+    .isString()
+    .withMessage('Duration must be a string'),
 
   body('price')
     .notEmpty()
@@ -57,10 +59,14 @@ export const createBookingRules = [
     .withMessage('Price must be a non-negative number'),
 
   body('totalAmount')
-    .notEmpty()
-    .withMessage('Total amount is required')
+    .optional()
     .isFloat({ min: 0 })
     .withMessage('Total amount must be a non-negative number'),
+
+  body('images')
+    .optional()
+    .isArray()
+    .withMessage('Images must be an array of image URLs'),
 ];
 
 export const getBookingRules = [

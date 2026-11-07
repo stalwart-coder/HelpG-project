@@ -21,6 +21,10 @@ const walletSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    totalSpent: {
+      type: Number,
+      default: 0,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -30,8 +34,6 @@ const walletSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-walletSchema.index({ userId: 1 });
 
 const Wallet = mongoose.model('Wallet', walletSchema);
 export default Wallet;

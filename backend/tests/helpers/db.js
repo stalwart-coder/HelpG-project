@@ -13,6 +13,7 @@ let mongoServer;
  * Call in beforeAll() of each test file.
  */
 export async function connectTestDb() {
+  if (mongoose.connection.readyState === 1) return;
   mongoServer = await MongoMemoryServer.create({
     instance: {
       dbName: 'test',
@@ -24,8 +25,6 @@ export async function connectTestDb() {
     serverSelectionTimeoutMS: 30000,
     connectTimeoutMS: 30000,
   });
-  // Verify connection is ready
-  await mongoose.connection.db.admin().ping();
 }
 
 /**

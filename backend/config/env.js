@@ -38,7 +38,33 @@ const env = {
 
   upload: {
     uploadDir: process.env.UPLOAD_DIR || 'uploads',
-    maxFileSizeMB: parseInt(process.env.MAX_FILE_SIZE_MB, 10) || 5,
+    maxFileSizeMB: parseInt(process.env.MAX_FILE_SIZE_MB, 10) || 10,
+  },
+
+  // ── Cloudflare R2 Object Storage ───────────────────────────────────────────
+  // R2 is S3-compatible — configure with your R2 API token credentials
+  cloudflare: {
+    accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '',
+    r2AccessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+    r2SecretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    r2BucketName: process.env.R2_BUCKET_NAME || 'helpji-files',
+    // Public URL for your R2 bucket (enable public access in Cloudflare dashboard)
+    // e.g. https://pub-abc123.r2.dev or your custom domain like https://files.helpji.app
+    r2PublicUrl: process.env.R2_PUBLIC_URL || '',
+  },
+
+  // ── Firebase Admin SDK ─────────────────────────────────────────────────────
+  // Download service account JSON from Firebase Console → Project Settings → Service accounts
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL || '',
+    // Paste private_key from service account JSON. In .env use \n for newlines.
+    privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+  },
+
+  // ── Google Maps ────────────────────────────────────────────────────────────
+  googleMaps: {
+    apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
   },
 
   // ── Razorpay ──────────────────────────────────────────────────────────────
@@ -48,7 +74,7 @@ const env = {
     webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || 'whsec_test_secret',
   },
 
-  // ── Payment / Commission ──────────────────────────────────────────────────
+  // ── Platform Commission ───────────────────────────────────────────────────
   payment: {
     platformCommissionPercent: parseFloat(process.env.PLATFORM_COMMISSION_PERCENT) || 0.10,
   },
@@ -62,7 +88,7 @@ const env = {
     smtpPass: process.env.SMTP_PASS || '',
   },
 
-  // ── Twilio (SMS) ──────────────────────────────────────────────────────────
+  // ── Twilio (SMS OTP) ──────────────────────────────────────────────────────
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID || '',
     authToken: process.env.TWILIO_AUTH_TOKEN || '',
@@ -73,6 +99,19 @@ const env = {
   notification: {
     fcmServerKey: process.env.FCM_SERVER_KEY || '',
     fcmProjectId: process.env.FCM_PROJECT_ID || '',
+  },
+
+  // ── AI Module ─────────────────────────────────────────────────────────────
+  ai: {
+    provider: process.env.AI_PROVIDER || 'openai',
+    apiKey: process.env.AI_API_KEY || '',
+    model: process.env.AI_MODEL || 'gpt-4o-mini',
+  },
+
+  // ── Demo Seeding ───────────────────────────────────────────────────────────
+  // Set SEED_DEMO_DATA=false in production .env to disable seeding demo accounts
+  seed: {
+    enabled: process.env.SEED_DEMO_DATA !== 'false',
   },
 };
 

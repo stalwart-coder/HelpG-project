@@ -93,13 +93,20 @@ const bookingSchema = new mongoose.Schema(
       required: [true, 'Location is required'],
       trim: true,
     },
+    coordinates: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number], default: [77.6245, 12.9352] }, // [lng, lat]
+    },
+    startOtp: {
+      type: String,
+      default: () => Math.floor(1000 + Math.random() * 9000).toString(),
+    },
     scheduledAt: {
       type: Date,
       required: [true, 'Scheduled date/time is required'],
     },
     duration: {
       type: String,
-      enum: ['onetime', '1day', '2day'],
       default: 'onetime',
     },
     price: {
@@ -133,6 +140,10 @@ const bookingSchema = new mongoose.Schema(
     },
     timeline: {
       type: [timelineEntrySchema],
+      default: [],
+    },
+    images: {
+      type: [String],
       default: [],
     },
     isActive: {
@@ -178,9 +189,13 @@ bookingSchema.pre('save', function (next) {
         by,
       });
     }
+    next();
+  } else {
+    next();
   }
-  next();
 });
+
+bookingSchema.index({ coordinates: '2dsphere' });
 
 const Booking = mongoose.model('Booking', bookingSchema);
 

@@ -114,7 +114,6 @@ supportTicketSchema.pre('validate', function (next) {
 supportTicketSchema.index({ user: 1, createdAt: -1 });
 supportTicketSchema.index({ status: 1, assignedTo: 1 });
 supportTicketSchema.index({ priority: 1, status: 1 });
-supportTicketSchema.index({ ticketId: 1 });
 
 const SupportTicket = mongoose.model('SupportTicket', supportTicketSchema);
 export { TICKET_STATUSES, TICKET_PRIORITIES, TICKET_CATEGORIES };
