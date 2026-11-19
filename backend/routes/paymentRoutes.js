@@ -15,28 +15,28 @@ const router = Router();
 // All payment routes require authentication
 router.use(authenticate);
 
-// ── Create Razorpay Order (Customer only) ───────────────────────────────
+// ── Create Razorpay Order (Customer / Helper) ───────────────────────────
 router.post(
   '/create-order',
-  authorize('customer'),
+  authorize('customer', 'helper', 'admin'),
   createOrderRules,
   validate,
   paymentController.createOrder
 );
 
-// ── Verify Payment (Customer only) ──────────────────────────────────────
+// ── Verify Payment (Customer / Helper) ──────────────────────────────────
 router.post(
   '/verify',
-  authorize('customer'),
+  authorize('customer', 'helper', 'admin'),
   verifyPaymentRules,
   validate,
   paymentController.verifyPayment
 );
 
-// ── Payment Failure (Customer only) ─────────────────────────────────────
+// ── Payment Failure (Customer / Helper) ─────────────────────────────────
 router.post(
   '/failure',
-  authorize('customer'),
+  authorize('customer', 'helper', 'admin'),
   paymentFailureRules,
   validate,
   paymentController.paymentFailure

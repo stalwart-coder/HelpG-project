@@ -25,15 +25,15 @@ const router = Router();
 router.use(authenticate);
 
 // ── Customer routes ──────────────────────────────────────────────────────
-router.post('/', authorize('customer'), createBookingRules, validate, createBooking);
-router.get('/mine', authorize('customer'), getMyBookings);
+router.post('/', authorize('customer', 'helper', 'admin'), createBookingRules, validate, createBooking);
+router.get('/mine', authorize('customer', 'helper', 'admin'), getMyBookings);
 
 // ── Helper / Public task feed routes ─────────────────────────────────────
 router.get('/available', authorize('helper', 'customer', 'admin'), getAvailableBookings);
-router.get('/helper', authorize('helper'), getHelperBookings);
+router.get('/helper', authorize('helper', 'customer', 'admin'), getHelperBookings);
 router.patch(
   '/:id/status',
-  authorize('helper'),
+  authorize('helper', 'admin'),
   updateStatusRules,
   validate,
   updateBookingStatus
@@ -42,7 +42,7 @@ router.patch(
 // ── Shared routes (customer or helper) ───────────────────────────────────
 router.get('/:id', getBookingRules, validate, getBookingById);
 router.post('/:id/cancel', cancelBookingRules, validate, cancelBooking);
-router.post('/:id/reschedule', authorize('customer'), rescheduleBookingRules, validate, rescheduleBooking);
+router.post('/:id/reschedule', authorize('customer', 'helper', 'admin'), rescheduleBookingRules, validate, rescheduleBooking);
 
 export default router;
 

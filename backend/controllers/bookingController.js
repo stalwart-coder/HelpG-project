@@ -13,10 +13,18 @@ export const createBooking = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/bookings/mine
- * Get current customer's bookings.
+ * Get current customer's bookings (or combined if helper/admin).
  */
 export const getMyBookings = asyncHandler(async (req, res) => {
-  const result = await bookingService.getCustomerBookings(req.user._id, req.query);
+  let result;
+  if (req.user.role === 'helper') {
+    const helperRes = await bookingService.getHelperBookings(req.user._id, req.query);
+    const customerRes = await bookingService.getCustomerBookings(req.user._id, req.query);
+    const combined = [...(customerRes.bookings || []), ...(helperRes.bookings || [])];
+    result = { bookings: combined, total: (customerRes.total || 0) + (helperRes.total || 0) };
+  } else {
+    result = await bookingService.getCustomerBookings(req.user._id, req.query);
+  }
   return new ApiResponse(200, result, 'Bookings retrieved successfully').send(res);
 });
 
@@ -34,7 +42,12 @@ export const getAvailableBookings = asyncHandler(async (req, res) => {
  * Get bookings assigned to the current helper.
  */
 export const getHelperBookings = asyncHandler(async (req, res) => {
-  const result = await bookingService.getHelperBookings(req.user._id, req.query);
+  let result;
+  if (req.user.role === 'customer') {
+    result = await bookingService.getCustomerBookings(req.user._id, req.query);
+  } else {
+    result = await bookingService.getHelperBookings(req.user._id, req.query);
+  }
   return new ApiResponse(200, result, 'Helper bookings retrieved successfully').send(res);
 });
 

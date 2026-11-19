@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
       const res = await api.post('/auth/login', { emailOrPhone, password });
       const { user: userData, accessToken: token } = res.data;
       persistAuth(userData, token);
-      return true;
+      return userData || true;
     } catch (err) {
       setAuthError(err?.message || 'Invalid credentials. Please check your email/phone and password.');
       return false;

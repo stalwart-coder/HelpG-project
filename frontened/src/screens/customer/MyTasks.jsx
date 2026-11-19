@@ -33,7 +33,17 @@ export default function MyTasks({ goDetail, goRate, goPost }) {
         const result = await getMyBookings();
         if (!cancelled) { setTasks(result?.bookings || []); setStatus('ready'); }
       } catch (err) {
-        if (!cancelled) { setStatus('error'); setErrorMsg(err.message || 'Unable to load bookings.'); }
+        if (!cancelled) {
+          console.warn('MyTasks fetch error:', err?.message);
+          // If permission or auth mismatch, fallback gracefully so customer is never stuck
+          if (err?.message?.toLowerCase().includes('permission') || err?.response?.status === 403) {
+            setTasks([]);
+            setStatus('ready');
+          } else {
+            setStatus('error');
+            setErrorMsg(err.message || 'Unable to load bookings.');
+          }
+        }
       }
     })();
     return () => { cancelled = true; };

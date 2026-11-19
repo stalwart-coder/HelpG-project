@@ -45,8 +45,11 @@ export default function Login({ onNavigate }) {
     setIsSubmitting(true);
     clearError();
     try {
-      const ok = await login({ emailOrPhone: eop, password: password.trim() });
-      if (ok) onNavigate?.('app');
+      const loggedUser = await login({ emailOrPhone: eop, password: password.trim() });
+      if (loggedUser) {
+        const targetRole = (typeof loggedUser === 'object' && loggedUser?.role) || 'customer';
+        onNavigate?.('app', targetRole);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -59,7 +62,7 @@ export default function Login({ onNavigate }) {
     try {
       const res = await loginWithGoogle('customer');
       if (res?.success) {
-        onNavigate?.('app');
+        onNavigate?.('app', 'customer');
       }
     } finally {
       setIsSubmitting(false);
@@ -76,8 +79,8 @@ export default function Login({ onNavigate }) {
         : { emailOrPhone: 'customer@helpji.com', password: 'Password@123' };
       setEmailOrPhone(creds.emailOrPhone);
       setPassword(creds.password);
-      const ok = await login(creds);
-      if (ok) onNavigate?.('app');
+      const loggedUser = await login(creds);
+      if (loggedUser) onNavigate?.('app', role);
     } finally {
       setIsSubmitting(false);
     }
