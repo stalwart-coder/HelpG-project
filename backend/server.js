@@ -16,6 +16,7 @@ import { errorConverter, errorHandler } from './middleware/errorHandler.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { sanitizeInput } from './middleware/sanitize.js';
 import { initSocketServer } from './socketServer.js';
+import { seedDemoData } from './seeds/demoSeed.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -113,7 +114,17 @@ app.use(globalLimiter);
 app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')));
 
 // ── API routes ───────────────────────────────────────────────────────────────
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'HelpJi Backend API',
+    status: 'online',
+    version: '1.0.0',
+    health: '/api/health',
+  });
+});
+
 app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 // ── 404 handler ──────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -133,6 +144,7 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await connectDatabase();
+    await seedDemoData();
 
     // Create HTTP server and attach Socket.IO
     const httpServer = createServer(app);

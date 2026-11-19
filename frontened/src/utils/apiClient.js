@@ -7,7 +7,16 @@
  * - Token refresh on 401 responses
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
+function resolveApiBaseUrl() {
+  let url = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
+  url = url.trim().replace(/\/+$/, '');
+  if (!url.endsWith('/api')) {
+    url = `${url}/api`;
+  }
+  return url;
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 let accessToken = null;
 let onRefreshFailed = null; // callback when refresh token fails
