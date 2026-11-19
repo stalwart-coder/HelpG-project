@@ -12,7 +12,8 @@ export default function HelperBookingsWrapper() {
   }, [loadHelperBookings]);
 
   const goDetail = (booking) => {
-    navigate(`/helper/bookings/${booking._id}`, { state: { booking } });
+    const id = booking?._id || booking?.id || booking;
+    navigate(`/helper/bookings/${id}`, { state: { booking } });
   };
 
   const goHome = () => navigate('/helper/home');

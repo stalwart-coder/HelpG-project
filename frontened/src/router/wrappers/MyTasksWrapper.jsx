@@ -5,11 +5,13 @@ export default function MyTasksWrapper() {
   const navigate = useNavigate();
 
   const goDetail = (task) => {
-    navigate(`/customer/tasks/${task.id}`, { state: { task } });
+    const id = task?._id || task?.id || task;
+    navigate(`/customer/tasks/${id}`, { state: { task } });
   };
 
   const goRate = (task) => {
-    navigate(`/customer/rate/${task.id}`, { state: { task } });
+    const id = task?._id || task?.id || task;
+    navigate(`/customer/rate/${id}`, { state: { task } });
   };
 
   const goPost = () => {
