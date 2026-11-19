@@ -123,7 +123,7 @@ export default function ServiceDetail({ category, onBack, onBook }) {
   const [addonCount, setAddonCount] = useState(0);
   const [timing, setTiming] = useState('now'); // 'now' | 'schedule'
   const [timeSlot, setTimeSlot] = useState('Morning (8:00 AM - 11:00 AM)');
-  const [address, setAddress] = useState(user?.location || 'Koramangala 4th Block, Bengaluru');
+  const [address, setAddress] = useState(user?.locality || 'Koramangala 4th Block, Bengaluru');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);

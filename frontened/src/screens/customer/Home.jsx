@@ -323,7 +323,7 @@ export default function CustomerHome({ goServiceDetail, goPost, goDetail }) {
               className="text-xs font-medium"
               style={{ color: 'var(--hj-ink-soft)', fontFamily: 'DM Sans, sans-serif' }}
             >
-              {user?.location || 'Koramangala 4th Block, Bengaluru'}
+              {user?.locality || 'Koramangala 4th Block, Bengaluru'}
             </span>
           </div>
         </div>

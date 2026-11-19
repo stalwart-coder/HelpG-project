@@ -20,7 +20,7 @@ export default function CustomerProfile({ onGoSupport }) {
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name || '');
-  const [location, setLocation] = useState(user?.location || '');
+  const [location, setLocation] = useState(user?.locality || '');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -80,13 +80,13 @@ export default function CustomerProfile({ onGoSupport }) {
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
                 <MapPin size={12} className="text-amber-500" />
-                <span>{user?.location || user?.phone || '—'}</span>
+                <span>{user?.locality || user?.phone || '—'}</span>
               </div>
             </div>
           </div>
           <button
             type="button"
-            onClick={() => { setName(user?.name || ''); setLocation(user?.location || ''); setEditing(true); }}
+            onClick={() => { setName(user?.name || ''); setLocation(user?.locality || ''); setEditing(true); }}
             className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
           >
             Edit

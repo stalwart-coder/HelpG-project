@@ -106,7 +106,7 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
           >
             <MapPin size={12} style={{ color: isHelper ? '#1CA89C' : '#F4831F' }} />
             <span className="font-medium truncate max-w-[180px]">
-              {user?.location || 'Koramangala 4th Block, Bengaluru'}
+              {user?.locality || 'Koramangala 4th Block, Bengaluru'}
             </span>
           </div>
         </div>
