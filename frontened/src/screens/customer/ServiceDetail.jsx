@@ -5,7 +5,7 @@
  * Guides the customer directly from discovering the service to customizing,
  * scheduling, reviewing verified local helpers, and 1-tap booking.
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, Star, ShieldCheck, Clock, MapPin, CheckCircle2,
   Calendar, Zap, AlertCircle, ArrowRight, Loader2, Sparkles, Plus, Minus
