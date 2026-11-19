@@ -243,7 +243,21 @@ export default function PostTask({ presetCategory, onSubmitted, onBack }) {
       const res = await createBooking(bookingData);
       const bookingPayload = res?.data || res || bookingData;
       setCreatedBooking(bookingPayload);
-      setSubmittedTask({ category, duration, dateTime, location, budget: String(budget), notes, images, uploadedUrls: uploadedImageUrls });
+      const createdId = bookingPayload?._id || bookingPayload?.id;
+      setSubmittedTask({
+        ...bookingPayload,
+        id: createdId,
+        _id: createdId,
+        category,
+        duration,
+        dateTime,
+        location,
+        budget: String(budget),
+        totalAmount: bookingData.totalAmount || budget,
+        notes,
+        images,
+        uploadedUrls: uploadedImageUrls
+      });
       setStatus('success');
       setShowTracker(true);
     } catch (err) {

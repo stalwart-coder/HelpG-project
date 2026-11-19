@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { X, Loader2, ShieldCheck, MapPin, Globe, Moon, LogOut, HelpCircle, Phone, Save, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Loader2, ShieldCheck, MapPin, Globe, Moon, LogOut, HelpCircle, Phone, Save, AlertTriangle, ShieldAlert, LifeBuoy } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +14,7 @@ function memberSince(createdAt) {
 }
 
 export default function CustomerProfile({ onGoSupport }) {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, logout, updateProfile, authError } = useAuth();
 
@@ -139,22 +141,44 @@ export default function CustomerProfile({ onGoSupport }) {
           <LanguageSelector />
         </div>
 
-        <div className="flex items-center justify-between py-2">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-              <HelpCircle size={16} />
+        <div className="py-2 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+                <LifeBuoy size={16} />
+              </div>
+              <div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Help & Support Tickets</div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">View ticket status or contact 24/7 team</div>
+              </div>
             </div>
-            <div>
-              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">24x7 Safety &amp; Trust Support</div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400">Aadhaar verified network hotline</div>
-            </div>
+            <button
+              type="button"
+              onClick={() => onGoSupport ? onGoSupport() : navigate('/customer/support')}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold hover:bg-amber-400 transition-colors"
+            >
+              Support Center
+            </button>
           </div>
-          <a
-            href="tel:1800123456"
-            className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
-          >
-            <Phone size={12} /> Call Helpline
-          </a>
+
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
+                <ShieldAlert size={16} />
+              </div>
+              <div>
+                <div className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">Emergency SOS Safety</div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400">Instant police, ambulance, safety dispatch</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/sos')}
+              className="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-bold hover:bg-rose-600 transition-colors"
+            >
+              Emergency SOS
+            </button>
+          </div>
         </div>
       </div>
 

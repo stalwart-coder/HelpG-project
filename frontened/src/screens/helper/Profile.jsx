@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, Loader2, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { AlertTriangle, Loader2, X, LifeBuoy, ShieldAlert, Calendar } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { SERVICES, SERVICE_LABELS } from '../../config/services';
 import HelperMini from '../../components/HelperMini';
+import AvailabilitySchedule from '../kyc/AvailabilitySchedule';
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/PageState';
 
 function EditSkillsModal({ profile, onSave, onClose }) {
@@ -112,8 +114,10 @@ export default function HelperProfile({
   onRemoveServiceArea,
   onRetry,
 }) {
+  const navigate = useNavigate();
   const { t, lang } = useLanguage();
   const [editing, setEditing] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState(false);
 
   const displayProfile = useMemo(() => {
     if (!profileData) return null;
@@ -268,19 +272,40 @@ export default function HelperProfile({
         })}
       </div>
 
-      {schedule?.schedule && (
-        <>
-          <div className="text-xs uppercase tracking-wide text-ink-soft font-semibold mb-2.5 font-mono">Working Schedule</div>
-          <div className="bg-paper-card border border-line rounded-card p-4 shadow-card mb-4">
-            {schedule.schedule.filter((s) => s.isActive !== false).map((s) => (
-              <div key={s.dayOfWeek} className="flex justify-between items-center py-2 border-b border-line last:border-b-0">
-                <span className="text-[13px] font-semibold capitalize">{s.dayOfWeek}</span>
-                <span className="text-xs text-ink-soft font-mono">{s.startTime} - {s.endTime}</span>
-              </div>
-            ))}
+      {/* Working Schedule Header & Card */}
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="text-xs uppercase tracking-wide text-ink-soft font-semibold font-mono">Working Schedule</div>
+        <button
+          type="button"
+          onClick={() => setEditingSchedule(true)}
+          className="text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1"
+        >
+          <Calendar size={12} />
+          <span>{schedule?.schedule ? 'Edit Hours' : 'Set Hours'}</span>
+        </button>
+      </div>
+
+      <div className="bg-paper-card border border-line rounded-card p-4 shadow-card mb-4">
+        {schedule?.schedule && schedule.schedule.filter((s) => s.isActive !== false).length > 0 ? (
+          schedule.schedule.filter((s) => s.isActive !== false).map((s) => (
+            <div key={s.dayOfWeek} className="flex justify-between items-center py-2 border-b border-line last:border-b-0">
+              <span className="text-[13px] font-semibold capitalize">{s.dayOfWeek}</span>
+              <span className="text-xs text-ink-soft font-mono">{s.startTime} - {s.endTime}</span>
+            </div>
+          ))
+        ) : (
+          <div className="text-xs text-ink-soft py-1 flex items-center justify-between">
+            <span>Flexible / 24x7 when online toggle is ON</span>
+            <button
+              type="button"
+              onClick={() => setEditingSchedule(true)}
+              className="text-teal-600 dark:text-teal-400 font-semibold hover:underline"
+            >
+              Configure hours →
+            </button>
           </div>
-        </>
-      )}
+        )}
+      </div>
 
       {serviceAreas?.length > 0 && (
         <>
@@ -316,6 +341,47 @@ export default function HelperProfile({
         {t('editSkills')}
       </button>
 
+      {/* Safety & Support Card */}
+      <div className="bg-paper-card border border-line rounded-card p-4 mt-4 shadow-card space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400">
+              <LifeBuoy size={16} />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Partner Support &amp; Tickets</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">Raise issues regarding bookings or payouts</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/helper/support')}
+            className="px-3 py-1.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors"
+          >
+            Support
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-line">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
+              <ShieldAlert size={16} />
+            </div>
+            <div>
+              <div className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">Emergency SOS Safety</div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">Police, Ambulance, Emergency Helpline</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/sos')}
+            className="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-xs font-bold hover:bg-rose-600 transition-colors"
+          >
+            SOS
+          </button>
+        </div>
+      </div>
+
       {editing && (
         <EditSkillsModal
           profile={{
@@ -332,6 +398,16 @@ export default function HelperProfile({
           }}
           onClose={() => setEditing(false)}
         />
+      )}
+      {editingSchedule && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl bg-paper">
+            <AvailabilitySchedule
+              onBack={() => setEditingSchedule(false)}
+              onSave={() => setEditingSchedule(false)}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

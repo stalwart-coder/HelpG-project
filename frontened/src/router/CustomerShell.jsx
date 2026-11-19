@@ -24,7 +24,7 @@ export default function CustomerShell() {
   else if (path.startsWith('/customer/profile')) activeTab = 'profile';
 
   // Hide BottomNav on focused booking flows to prevent overlapping bottom action bars
-  const hideBottomNav = path.startsWith('/customer/service/') || path.startsWith('/customer/rate/');
+  const hideBottomNav = path.startsWith('/customer/service/') || path.startsWith('/customer/rate/') || path.includes('/chat') || path.includes('/support') || path.includes('/notifications');
 
   const handleTabChange = (tabId) => {
     switch (tabId) {

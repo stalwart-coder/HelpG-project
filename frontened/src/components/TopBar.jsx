@@ -2,21 +2,44 @@
  * TopBar — HelpJi Navigation Header
  * Clean, full-width, high-contrast light and dark mode header.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
-import { MapPin, ChevronDown, User, Briefcase, LogOut, Sparkles } from 'lucide-react';
+import { getUnreadCount } from '../utils/notificationApi';
+import {
+  MapPin,
+  ChevronDown,
+  Briefcase,
+  LogOut,
+  Bell,
+  MessageSquare,
+  LifeBuoy,
+  ShieldAlert,
+} from 'lucide-react';
 
 export default function TopBar({ mode = 'customer', setMode, onExit }) {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const isHelper = mode === 'helper';
   const displayName = user?.name?.split(' ')[0] || (isHelper ? 'Helper' : 'User');
   const initials = (user?.name || (isHelper ? 'H' : 'U'))[0].toUpperCase();
+
+  useEffect(() => {
+    let active = true;
+    getUnreadCount()
+      .then((data) => {
+        if (active) setUnreadNotifications(data?.count || 0);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   return (
     <header
@@ -89,7 +112,52 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
         </div>
 
         {/* ── Right Actions ── */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Emergency SOS Button */}
+          <button
+            type="button"
+            onClick={() => navigate('/sos')}
+            title="Emergency SOS & Safety"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all hover:scale-105"
+            style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              color: '#EF4444',
+              border: '1px solid rgba(239, 68, 68, 0.25)',
+            }}
+          >
+            <ShieldAlert size={14} />
+            <span className="hidden sm:inline">SOS</span>
+          </button>
+
+          {/* Live Chat Drawer / Inbox Button */}
+          <button
+            type="button"
+            onClick={() => navigate(isHelper ? '/helper/chat' : '/customer/chat')}
+            title="Chat & Messages"
+            className="p-2 rounded-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+            style={{ border: '1px solid var(--hj-line)' }}
+            aria-label="Messages"
+          >
+            <MessageSquare size={16} />
+          </button>
+
+          {/* Notifications Button */}
+          <button
+            type="button"
+            onClick={() => navigate(isHelper ? '/helper/notifications' : '/customer/notifications')}
+            title="Notifications"
+            className="relative p-2 rounded-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+            style={{ border: '1px solid var(--hj-line)' }}
+            aria-label="Notifications"
+          >
+            <Bell size={16} />
+            {unreadNotifications > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">
+                {unreadNotifications > 9 ? '9+' : unreadNotifications}
+              </span>
+            )}
+          </button>
+
           <LanguageSelector />
           <ThemeToggle />
 
@@ -97,7 +165,7 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
           <button
             type="button"
             onClick={() => setMode(isHelper ? 'customer' : 'helper')}
-            className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold
                        transition-all active:scale-95 cursor-pointer"
             style={{
               fontFamily: 'Sora, sans-serif',
@@ -162,6 +230,58 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
                   </div>
 
                   <div className="py-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate(isHelper ? '/helper/profile' : '/customer/profile');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-colors"
+                      style={{ color: 'var(--hj-ink)' }}
+                    >
+                      <span>👤 {t('navProfile') || 'My Profile'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate(isHelper ? '/helper/support' : '/customer/support');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-colors"
+                      style={{ color: 'var(--hj-ink)' }}
+                    >
+                      <LifeBuoy size={14} className="text-emerald-500" />
+                      <span>Support & Help Tickets</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate(isHelper ? '/helper/chat' : '/customer/chat');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition-colors"
+                      style={{ color: 'var(--hj-ink)' }}
+                    >
+                      <MessageSquare size={14} className="text-blue-500" />
+                      <span>Messages & Chat</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate('/sos');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 text-left transition-colors"
+                    >
+                      <ShieldAlert size={14} />
+                      <span>Emergency SOS</span>
+                    </button>
+
+                    <div className="my-1 border-t" style={{ borderColor: 'var(--hj-line)' }} />
+
                     <button
                       type="button"
                       onClick={() => {

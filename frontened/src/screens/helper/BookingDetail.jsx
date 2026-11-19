@@ -46,7 +46,7 @@ export default function BookingDetail({ booking, onBack, onAccept, onReject, onS
       setIsVerifying(false);
       setCurrentStatus('completed');
       setShowOtpModal(false);
-      onComplete?.();
+      onComplete?.(resolvedBooking.id || resolvedBooking._id, inputOtp);
     }, 1200);
   };
 

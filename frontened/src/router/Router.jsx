@@ -27,10 +27,17 @@ import BookingDetailWrapper from './wrappers/BookingDetailWrapper';
 import HelperEarningsWrapper from './wrappers/HelperEarningsWrapper';
 import HelperProfileWrapper from './wrappers/HelperProfileWrapper';
 import HelperKycWrapper from './wrappers/HelperKycWrapper';
+import HelperWithdrawWrapper from './wrappers/HelperWithdrawWrapper';
+
+// Shared wrappers & screens
+import ChatWrapper from './wrappers/ChatWrapper';
+import NotificationsWrapper from './wrappers/NotificationsWrapper';
+import SupportWrapper from './wrappers/SupportWrapper';
+import SOSScreen from '../screens/support/SOSScreen';
 
 // Booking flows (full-screen, no shell)
 import BookingFlowWrapper from './wrappers/BookingFlowWrapper';
-import CancelRescheduleFlowWrapper from './wrappers/CancelRescheduleFlowWrapper';
+import BookingActionWrapper from './wrappers/BookingActionWrapper';
 
 // Protected route wrapper
 import ProtectedRoute from './ProtectedRoute';
@@ -86,6 +93,8 @@ function LandingWithNav() {
 
 // ── Main Router ────────────────────────────────────────────────────────────
 export default function AppRouter() {
+  const navigate = useNavigate();
+
   return (
     <Routes>
       {/* ── Public routes ─────────────────────────────────────────── */}
@@ -93,9 +102,13 @@ export default function AppRouter() {
       <Route path="/auth" element={<AuthRouterWrapper />} />
       <Route path="/login" element={<AuthRouterWrapper />} />
 
+      {/* ── Emergency SOS (Fast public/user access) ────────────────── */}
+      <Route path="/sos" element={<SOSScreen onBack={() => navigate(-1)} />} />
+
       {/* ── Booking flows (full-screen, no shell) ─────────────────── */}
       <Route path="/booking" element={<BookingFlowWrapper />} />
-      <Route path="/cancel-reschedule" element={<CancelRescheduleFlowWrapper />} />
+      <Route path="/booking/action" element={<BookingActionWrapper />} />
+      <Route path="/cancel-reschedule" element={<BookingActionWrapper />} />
 
       {/* ── Protected routes ──────────────────────────────────────── */}
       <Route element={<ProtectedRoute />}>
@@ -110,6 +123,10 @@ export default function AppRouter() {
           <Route path="rate/:taskId" element={<RateTaskWrapper />} />
           <Route path="wallet" element={<CustomerWalletWrapper />} />
           <Route path="profile" element={<CustomerProfileWrapper />} />
+          <Route path="chat" element={<ChatWrapper />} />
+          <Route path="chat/:conversationId" element={<ChatWrapper />} />
+          <Route path="notifications" element={<NotificationsWrapper />} />
+          <Route path="support" element={<SupportWrapper />} />
         </Route>
 
         {/* Helper */}
@@ -119,8 +136,13 @@ export default function AppRouter() {
           <Route path="bookings" element={<HelperBookingsWrapper />} />
           <Route path="bookings/:bookingId" element={<BookingDetailWrapper />} />
           <Route path="earnings" element={<HelperEarningsWrapper />} />
+          <Route path="withdraw" element={<HelperWithdrawWrapper />} />
           <Route path="profile" element={<HelperProfileWrapper />} />
           <Route path="kyc" element={<HelperKycWrapper />} />
+          <Route path="chat" element={<ChatWrapper />} />
+          <Route path="chat/:conversationId" element={<ChatWrapper />} />
+          <Route path="notifications" element={<NotificationsWrapper />} />
+          <Route path="support" element={<SupportWrapper />} />
         </Route>
       </Route>
 
@@ -143,4 +165,3 @@ export default function AppRouter() {
     </Routes>
   );
 }
-

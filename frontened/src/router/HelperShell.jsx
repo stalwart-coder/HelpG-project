@@ -22,7 +22,7 @@ export default function HelperShell() {
   else if (path.startsWith('/helper/profile')) activeTab = 'profile';
 
   // Hide BottomNav on focused booking detail to prevent bottom collision
-  const hideBottomNav = path.includes('/bookings/') || path.includes('/kyc');
+  const hideBottomNav = path.includes('/bookings/') || path.includes('/kyc') || path.includes('/chat') || path.includes('/support') || path.includes('/notifications') || path.includes('/withdraw');
 
   const handleTabChange = (tabId) => {
     switch (tabId) {

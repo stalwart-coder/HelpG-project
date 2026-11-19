@@ -10,7 +10,8 @@
  * Instead of just a number dump, explain the earning pipeline visually.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { X, Loader2, TrendingUp, ArrowDown, Wallet, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { X, Loader2, TrendingUp, ArrowDown, Wallet, CheckCircle2, Building2 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import WalletCard from '../../components/WalletCard';
 import TxnRow from '../../components/TxnRow';
@@ -281,6 +282,7 @@ function WithdrawModal({ balance, onClose }) {
 
 /* ── Main Screen ── */
 export default function Earnings() {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [data, setData] = useState(null);
   const [status, setStatus] = useState('loading');
@@ -338,6 +340,17 @@ export default function Earnings() {
         onPrimary={() => setShowWithdraw(true)}
         onSecondary={() => downloadCSV(txns)}
       />
+
+      <div className="flex justify-end -mt-3 mb-6">
+        <button
+          type="button"
+          onClick={() => navigate('/helper/withdraw')}
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:underline"
+        >
+          <Building2 size={13} />
+          <span>Manage Bank Accounts &amp; Full Withdrawal Flow →</span>
+        </button>
+      </div>
 
       {/* Weekly Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
