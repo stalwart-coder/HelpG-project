@@ -28,8 +28,8 @@ router.use(authenticate);
 router.post('/', authorize('customer'), createBookingRules, validate, createBooking);
 router.get('/mine', authorize('customer'), getMyBookings);
 
-// ── Helper routes ────────────────────────────────────────────────────────
-router.get('/available', authorize('helper'), getAvailableBookings);
+// ── Helper / Public task feed routes ─────────────────────────────────────
+router.get('/available', authorize('helper', 'customer', 'admin'), getAvailableBookings);
 router.get('/helper', authorize('helper'), getHelperBookings);
 router.patch(
   '/:id/status',

@@ -25,6 +25,7 @@ import { getMyBookings, getAvailableBookings } from '../../utils/bookingApi';
 import { ArrowRight, MapPin, Sparkles, ChevronRight, Plus, Clock, Radio } from 'lucide-react';
 import { SkeletonPage, EmptyState } from '../../components/ui/PageState';
 import { formatLocation } from '../../utils/format';
+import { LOCALITIES, boardTasks } from '../../data/mockData';
 
 /* ── Smart Composer: shows what the AI "understood" as chips ── */
 function SmartComposer({ onSubmit }) {
@@ -253,9 +254,10 @@ export default function CustomerHome({ goServiceDetail, goPost, goDetail }) {
           }
 
           // Available board
-          if (boardRes.status === 'fulfilled') {
-            const list = boardRes.value?.bookings ?? [];
-            setBoard(list);
+          if (boardRes.status === 'fulfilled' && boardRes.value?.bookings?.length > 0) {
+            setBoard(boardRes.value.bookings);
+          } else {
+            setBoard(boardTasks || []);
           }
         }
       } catch { /* ignore */ }
