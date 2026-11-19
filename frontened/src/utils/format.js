@@ -12,3 +12,19 @@ export function formatINR(n) {
   }
 }
 
+/**
+ * Formats a location value safely for React rendering.
+ * Prevents "Objects are not valid as a React child" errors when GeoJSON {type: 'Point', coordinates: [...]} is passed.
+ */
+export function formatLocation(loc, fallback = 'Koramangala 4th Block, Bengaluru') {
+  if (!loc) return fallback;
+  if (typeof loc === 'string') return loc.trim() || fallback;
+  if (typeof loc === 'object') {
+    if (loc.locality && typeof loc.locality === 'string') return loc.locality;
+    if (loc.address && typeof loc.address === 'string') return loc.address;
+    if (Array.isArray(loc.coordinates) && loc.coordinates.length >= 2) {
+      return `${loc.coordinates[1].toFixed(4)}, ${loc.coordinates[0].toFixed(4)}`;
+    }
+  }
+  return fallback;
+}

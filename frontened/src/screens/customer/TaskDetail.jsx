@@ -18,6 +18,7 @@ import Timeline from '../../components/Timeline';
 import { EmptyState, ErrorState, SkeletonTaskDetail } from '../../components/ui/PageState';
 import { getBookingById } from '../../utils/bookingApi';
 import LiveChatDrawer from '../../components/LiveChatDrawer';
+import { formatLocation } from '../../utils/format';
 
 export default function TaskDetail({
   bookingId,
@@ -214,7 +215,7 @@ export default function TaskDetail({
         <div className="pt-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs" style={{ borderColor: 'var(--hj-line)', color: 'var(--hj-ink-soft)' }}>
           <div className="flex items-center gap-2">
             <MapPin size={14} style={{ color: '#F4831F' }} className="shrink-0" />
-            <span className="truncate">{booking?.location || 'Koramangala 4th Block, Bengaluru'}</span>
+            <span className="truncate">{formatLocation(booking?.location)}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock size={14} style={{ color: '#1CA89C' }} className="shrink-0" />

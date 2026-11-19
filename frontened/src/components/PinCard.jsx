@@ -5,6 +5,7 @@
 import { MapPin, Clock, Star, ArrowRight, CheckCircle2, Zap } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import { SERVICES, SERVICE_LABELS } from '../config/services';
+import { formatLocation } from '../utils/format';
 
 export default function PinCard({ task, onSelect }) {
   const { lang } = useLanguage();
@@ -23,7 +24,7 @@ export default function PinCard({ task, onSelect }) {
 
   const locationLine = task.distanceKm != null
     ? `${task.distanceKm} km away`
-    : task.location || 'Nearby';
+    : formatLocation(task.location, 'Nearby');
 
   const isNearby = task.distanceKm != null && task.distanceKm <= 2;
   const clickable = !!onSelect;
@@ -109,7 +110,7 @@ export default function PinCard({ task, onSelect }) {
           <div className="flex items-center gap-1.5">
             <MapPin size={13} style={{ color: '#F4831F' }} className="shrink-0" />
             <span className="font-medium text-[var(--hj-ink-soft)]">
-              {locationLine} {task.location ? `• ${task.location}` : ''}
+              {locationLine} {task.location && typeof task.location === 'string' ? `• ${task.location}` : ''}
             </span>
           </div>
 

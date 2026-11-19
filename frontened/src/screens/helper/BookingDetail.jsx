@@ -9,6 +9,7 @@ import Timeline from '../../components/Timeline';
 import HelperLiveNavMap from '../../components/HelperLiveNavMap';
 import LiveChatDrawer from '../../components/LiveChatDrawer';
 import { EmptyState, LoadingState, SuccessState } from '../../components/ui/PageState';
+import { formatLocation } from '../../utils/format';
 
 export default function BookingDetail({ booking, onBack, onAccept, onReject, onStart, onArrived, onComplete }) {
   const { lang } = useLanguage();
@@ -169,7 +170,7 @@ export default function BookingDetail({ booking, onBack, onAccept, onReject, onS
 
           <div className="pt-2 border-t flex items-center gap-1.5" style={{ borderColor: 'var(--hj-line)' }}>
             <MapPin size={14} style={{ color: '#F4831F' }} className="shrink-0" />
-            <span className="font-medium truncate">{resolvedBooking.location}</span>
+            <span className="font-medium truncate">{formatLocation(resolvedBooking.location)}</span>
           </div>
         </div>
 

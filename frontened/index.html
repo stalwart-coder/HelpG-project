@@ -6,7 +6,14 @@
     <title>HelpJi — Kaam ka Bharosa</title>
     <meta name="description" content="HelpJi connects you with verified local helpers for ironing, vehicle wash, guard duty, event staff and more. Post a task and get matched instantly." />
     <meta name="theme-color" content="#EDEEE9" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <script>
+      // Automatically refresh when a new build is deployed and chunk hash changes
+      window.addEventListener('vite:preloadError', () => {
+        window.location.reload();
+      });
+    </script>
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="HelpJi" />
 

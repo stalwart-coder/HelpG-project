@@ -6,6 +6,7 @@ import { SERVICES, SERVICE_LABELS } from '../../config/services';
 import HelperMini from '../../components/HelperMini';
 import AvailabilitySchedule from '../kyc/AvailabilitySchedule';
 import { EmptyState, ErrorState, LoadingState, SuccessState } from '../../components/ui/PageState';
+import { formatLocation } from '../../utils/format';
 
 function EditSkillsModal({ profile, onSave, onClose }) {
   const [selectedSkills, setSelectedSkills] = useState(profile.skills || []);
@@ -228,7 +229,7 @@ export default function HelperProfile({
                       </div>
                       <h4 className="font-bold text-sm text-ink">{t.title}</h4>
                       <p className="text-xs text-ink-soft mt-0.5 flex items-center gap-1">
-                        <span>📍 {t.location || 'Local Area'}</span>
+                        <span>📍 {formatLocation(t.location, 'Local Area')}</span>
                       </p>
                     </div>
                     <div className="text-right">

@@ -3,6 +3,7 @@ import {
   Navigation, MapPin, Phone, MessageSquare, ExternalLink,
   CheckCircle2, Clock, AlertTriangle, Compass, ShieldCheck
 } from 'lucide-react';
+import { formatLocation } from '../utils/format';
 
 export default function HelperLiveNavMap({
   booking = {
@@ -51,7 +52,7 @@ export default function HelperLiveNavMap({
 
   const customerName = booking.customer?.name || 'Aarav Sharma';
   const customerPhone = booking.customer?.phone || '9876543210';
-  const customerAddress = booking.location || 'Flat 402, Koramangala 4th Block, Bengaluru';
+  const customerAddress = formatLocation(booking.location, 'Flat 402, Koramangala 4th Block, Bengaluru');
 
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(customerAddress)}`;
 

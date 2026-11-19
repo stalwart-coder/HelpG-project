@@ -24,6 +24,7 @@ import { SERVICES, SERVICE_LABELS } from '../../config/services';
 import { getMyBookings, getAvailableBookings } from '../../utils/bookingApi';
 import { ArrowRight, MapPin, Sparkles, ChevronRight, Plus, Clock, Radio } from 'lucide-react';
 import { SkeletonPage, EmptyState } from '../../components/ui/PageState';
+import { formatLocation } from '../../utils/format';
 
 /* ── Smart Composer: shows what the AI "understood" as chips ── */
 function SmartComposer({ onSubmit }) {
@@ -195,7 +196,7 @@ function ActiveTaskBanner({ booking, onTrack }) {
           <div className="flex items-center gap-1.5 mt-0.5">
             <Clock size={12} style={{ color: 'rgba(255,255,255,0.5)' }} />
             <span className="text-xs text-white/60">
-              {booking.location || 'Koramangala 4th Block, Bengaluru'}
+              {formatLocation(booking.location)}
             </span>
           </div>
         </div>
@@ -323,7 +324,7 @@ export default function CustomerHome({ goServiceDetail, goPost, goDetail }) {
               className="text-xs font-medium"
               style={{ color: 'var(--hj-ink-soft)', fontFamily: 'DM Sans, sans-serif' }}
             >
-              {user?.locality || 'Koramangala 4th Block, Bengaluru'}
+              {formatLocation(user?.locality || user?.location)}
             </span>
           </div>
         </div>

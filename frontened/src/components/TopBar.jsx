@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { formatLocation } from '../utils/format';
 import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
 import { getUnreadCount } from '../utils/notificationApi';
@@ -106,7 +107,7 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
           >
             <MapPin size={12} style={{ color: isHelper ? '#1CA89C' : '#F4831F' }} />
             <span className="font-medium truncate max-w-[180px]">
-              {user?.locality || 'Koramangala 4th Block, Bengaluru'}
+              {formatLocation(user?.locality || user?.location)}
             </span>
           </div>
         </div>

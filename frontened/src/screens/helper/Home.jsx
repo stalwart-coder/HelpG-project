@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { getAvailableBookings } from '../../utils/bookingApi';
 import { EmptyState, ErrorState, SkeletonPage } from '../../components/ui/PageState';
+import { formatLocation } from '../../utils/format';
 import OnboardingGuide from '../../components/OnboardingGuide';
 import TiltCard3D from '../../components/3d/TiltCard3D';
 import HelperRadarMap from '../../components/tracking/HelperRadarMap';
@@ -119,7 +120,7 @@ function OpportunityCard({ task, onAccept, accepted, accepting }) {
           <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--hj-ink-soft)', fontFamily: 'DM Sans, sans-serif' }}>
             <div className="flex items-center gap-1">
               <MapPin size={13} style={{ color: '#1CA89C' }} />
-              <span>{task.distanceKm || 1.2} km away • {task.location || 'Koramangala 4th Block'}</span>
+              <span>{task.distanceKm || 1.2} km away • {formatLocation(task.location)}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock size={13} style={{ color: 'var(--hj-ink-muted)' }} />
