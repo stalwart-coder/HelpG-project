@@ -25,7 +25,11 @@ export default function CancelBooking({ taskData, onBack, onConfirmed }) {
   const canSubmit = !!selectedReason && status !== 'confirming';
 
   const handleConfirm = async () => {
-    if (!canSubmit) return;
+    if (!selectedReason) {
+      setErrorMsg('Please select a reason for cancellation above.');
+      return;
+    }
+    if (status === 'confirming') return;
     setStatus('confirming');
     setErrorMsg('');
 
@@ -171,10 +175,24 @@ export default function CancelBooking({ taskData, onBack, onConfirmed }) {
           <div className="text-right text-[11px] text-ink-soft mt-1">{notes.length}/200</div>
         </div>
 
+        {errorMsg && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <AlertTriangle size={14} className="shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Sticky Bottom Actions Bar so it's always in view */}
+      <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-line p-4 mt-6 z-20 shadow-float">
         <button
+          type="button"
           onClick={handleConfirm}
-          disabled={!canSubmit}
-          className="w-full bg-brick text-white font-bold text-[15px] py-4 rounded-2xl shadow-lift flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
+          disabled={status === 'confirming'}
+          className="w-full text-white font-bold text-[15px] py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+          style={{
+            background: '#DC2626',
+          }}
         >
           {status === 'confirming' ? (
             <>
@@ -182,12 +200,18 @@ export default function CancelBooking({ taskData, onBack, onConfirmed }) {
             </>
           ) : (
             <>
-              <X size={18} /> Cancel Booking — Refund ₹{formatINR(refundAmount)}
+              <X size={18} strokeWidth={2.5} /> Cancel Booking — Refund ₹{formatINR(refundAmount)}
             </>
           )}
         </button>
 
-        <p className="text-center text-[11px] text-ink-soft leading-relaxed pb-4">
+        {!selectedReason && (
+          <p className="text-center text-xs text-amber-600 font-medium mt-2">
+            ⚠️ Please select a reason above to confirm cancellation
+          </p>
+        )}
+
+        <p className="text-center text-[11px] text-ink-soft leading-relaxed mt-2">
           Cancelling after the helper has started may affect your refund eligibility.
         </p>
       </div>

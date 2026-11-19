@@ -99,10 +99,11 @@ export default function LiveTrackingMap({
         touchZoom: interactive,
       });
 
-      // CartoDB Positron / OpenStreetMap modern high-contrast sleek tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      // OpenStreetMap high-reliability free tile layer (zero API key watermarks)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd',
+        subdomains: ['a', 'b', 'c'],
+        attribution: '&copy; OpenStreetMap contributors',
       }).addTo(map);
 
       // Add zoom control top-right

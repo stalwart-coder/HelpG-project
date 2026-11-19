@@ -48,6 +48,14 @@
   --hj-shadow-float:  0 12px 40px rgba(26,26,46,0.14);
 }
 
+/* ── Brand utility fallbacks ────────────────────────────────────────── */
+.bg-brick { background-color: #DC2626 !important; }
+.text-brick { color: #DC2626 !important; }
+.border-brick { border-color: #DC2626 !important; }
+.bg-marigold { background-color: #F4831F !important; }
+.text-marigold { color: #F4831F !important; }
+.text-marigold-deep { color: #E06A08 !important; }
+
 /* ── Dark Mode Custom Properties (Sleek Slate/Ink Theme) ──────────── */
 .dark, [data-theme="dark"] {
   /* Surfaces */
