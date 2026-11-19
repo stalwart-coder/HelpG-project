@@ -5,25 +5,23 @@ import { signInWithGoogle, firebaseSignOut } from '../firebase/firebase';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true); // start true to avoid flash
-  const [authError, setAuthError] = useState(null);
-
-  // ── Rehydrate session from localStorage on mount ─────────────────────────────
-  useEffect(() => {
-    const storedUser = localStorage.getItem('helpji_user');
-    const storedToken = localStorage.getItem('helpji_token');
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
+  const [user, setUser] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const storedUser = localStorage.getItem('helpji_user');
+      const storedToken = localStorage.getItem('helpji_token');
+      if (storedUser && storedToken) {
         setAccessToken(storedToken);
-      } catch {
-        localStorage.removeItem('helpji_user');
-        localStorage.removeItem('helpji_token');
+        return JSON.parse(storedUser);
       }
+    } catch {
+      localStorage.removeItem('helpji_user');
+      localStorage.removeItem('helpji_token');
     }
-    setAuthLoading(false);
-  }, []);
+    return null;
+  });
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
   // ── Refresh failure handler ──────────────────────────────────────────────────
   useEffect(() => {
