@@ -5,7 +5,7 @@ import OtpVerification from './OtpVerification';
 import ForgotPassword from './ForgotPassword';
 import RoleSelection from './RoleSelection';
 
-export default function AuthRouter({ onEnterApp }) {
+export default function AuthRouter({ onEnterApp, onNavigateHome }) {
   // screen: login | signup | otp | forgot-password | role-selection
   const [screen, setScreen] = useState('login');
   const [otpFlow, setOtpFlow] = useState('login'); // 'login' | 'signup'
@@ -32,7 +32,11 @@ export default function AuthRouter({ onEnterApp }) {
         onEnterApp?.(param || 'customer');
         break;
       case 'landing':
-        setScreen('login');
+        if (onNavigateHome) {
+          onNavigateHome();
+        } else {
+          window.location.href = '/';
+        }
         break;
       default:
         break;

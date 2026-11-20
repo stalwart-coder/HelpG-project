@@ -16,5 +16,5 @@ export default function AuthRouterWrapper() {
     return <Navigate to={user?.role === 'helper' ? '/helper/home' : '/customer/home'} replace />;
   }
 
-  return <AuthRouter onEnterApp={onEnterApp} />;
+  return <AuthRouter onEnterApp={onEnterApp} onNavigateHome={() => navigate('/')} />;
 }
