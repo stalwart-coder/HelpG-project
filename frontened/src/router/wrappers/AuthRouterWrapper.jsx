@@ -1,9 +1,10 @@
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthRouter from '../../screens/auth/AuthRouter';
 
-export default function AuthRouterWrapper() {
+export default function AuthRouterWrapper({ initialMode }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
 
   const onEnterApp = (mode) => {
@@ -16,5 +17,15 @@ export default function AuthRouterWrapper() {
     return <Navigate to={user?.role === 'helper' ? '/helper/home' : '/customer/home'} replace />;
   }
 
-  return <AuthRouter onEnterApp={onEnterApp} onNavigateHome={() => navigate('/')} />;
+  const mode = initialMode || searchParams.get('mode') || (searchParams.get('role') === 'helper' ? 'signup' : 'login');
+  const role = searchParams.get('role') || 'customer';
+
+  return (
+    <AuthRouter
+      initialScreen={mode === 'signup' ? 'signup' : 'login'}
+      initialRole={role}
+      onEnterApp={onEnterApp}
+      onNavigateHome={() => navigate('/')}
+    />
+  );
 }

@@ -70,7 +70,7 @@ function LandingWithNav() {
     if (isAuthenticated) {
       navigate(user?.role === 'helper' ? '/helper/home' : '/customer/home');
     } else {
-      navigate('/auth?role=helper');
+      navigate('/signup?role=helper');
     }
   };
 
@@ -101,6 +101,7 @@ export default function AppRouter() {
       <Route path="/" element={<LandingWithNav />} />
       <Route path="/auth" element={<AuthRouterWrapper />} />
       <Route path="/login" element={<AuthRouterWrapper />} />
+      <Route path="/signup" element={<AuthRouterWrapper initialMode="signup" />} />
 
       {/* ── Emergency SOS (Fast public/user access) ────────────────── */}
       <Route path="/sos" element={<SOSScreen onBack={() => navigate(-1)} />} />

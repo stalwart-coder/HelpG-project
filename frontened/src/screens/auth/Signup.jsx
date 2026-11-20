@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -17,7 +17,7 @@ function FieldError({ msg }) {
   );
 }
 
-export default function Signup({ onNavigate }) {
+export default function Signup({ onNavigate, initialRole = 'customer' }) {
   const { t } = useLanguage();
   const {
     signup,
@@ -31,7 +31,13 @@ export default function Signup({ onNavigate }) {
   } = useAuth();
 
   // Role: 'customer' | 'helper'
-  const [role, setRole] = useState('customer');
+  const [role, setRole] = useState(initialRole || 'customer');
+
+  useEffect(() => {
+    if (initialRole) {
+      setRole(initialRole);
+    }
+  }, [initialRole]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

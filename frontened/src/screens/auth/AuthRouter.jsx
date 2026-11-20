@@ -1,14 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './Login';
 import Signup from './Signup';
 import OtpVerification from './OtpVerification';
 import ForgotPassword from './ForgotPassword';
 import RoleSelection from './RoleSelection';
 
-export default function AuthRouter({ onEnterApp, onNavigateHome }) {
-  // screen: login | signup | otp | forgot-password | role-selection
-  const [screen, setScreen] = useState('login');
+export default function AuthRouter({
+  onEnterApp,
+  onNavigateHome,
+  initialScreen = 'login',
+  initialRole = 'customer',
+}) {
+  const [screen, setScreen] = useState(initialScreen);
+  const [currentRole, setCurrentRole] = useState(initialRole);
   const [otpFlow, setOtpFlow] = useState('login'); // 'login' | 'signup'
+
+  useEffect(() => {
+    if (initialScreen) setScreen(initialScreen);
+  }, [initialScreen]);
+
+  useEffect(() => {
+    if (initialRole) setCurrentRole(initialRole);
+  }, [initialRole]);
 
   const navigate = (target, param) => {
     switch (target) {
@@ -16,6 +29,9 @@ export default function AuthRouter({ onEnterApp, onNavigateHome }) {
         setScreen('login');
         break;
       case 'signup':
+        if (param === 'helper' || param === 'customer') {
+          setCurrentRole(param);
+        }
         setScreen('signup');
         break;
       case 'otp':
@@ -29,7 +45,7 @@ export default function AuthRouter({ onEnterApp, onNavigateHome }) {
         setScreen('role-selection');
         break;
       case 'app':
-        onEnterApp?.(param || 'customer');
+        onEnterApp?.(param || currentRole || 'customer');
         break;
       case 'landing':
         if (onNavigateHome) {
@@ -47,7 +63,7 @@ export default function AuthRouter({ onEnterApp, onNavigateHome }) {
     case 'login':
       return <Login onNavigate={navigate} />;
     case 'signup':
-      return <Signup onNavigate={navigate} />;
+      return <Signup onNavigate={navigate} initialRole={currentRole} />;
     case 'otp':
       return <OtpVerification flow={otpFlow} onNavigate={navigate} />;
     case 'forgot-password':
