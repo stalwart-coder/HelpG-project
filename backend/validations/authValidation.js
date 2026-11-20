@@ -12,8 +12,7 @@ export const signupRules = [
     .withMessage('Name must be between 2 and 50 characters'),
 
   body('phone')
-    .notEmpty()
-    .withMessage('Phone number is required')
+    .optional({ values: 'falsy' })
     .matches(/^\+?[1-9]\d{9,14}$/)
     .withMessage('Invalid phone number format'),
 
@@ -33,6 +32,13 @@ export const signupRules = [
     .optional()
     .isIn(['customer', 'helper'])
     .withMessage('Role must be either customer or helper'),
+
+  body().custom((value, { req }) => {
+    if (!req.body.email && !req.body.phone) {
+      throw new Error('Either an email address or phone number is required');
+    }
+    return true;
+  }),
 ];
 
 /**

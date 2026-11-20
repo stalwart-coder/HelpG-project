@@ -162,22 +162,19 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
           <LanguageSelector />
           <ThemeToggle />
 
-          {/* Switch Mode Button (Quick Access) */}
-          <button
-            type="button"
-            onClick={() => setMode(isHelper ? 'customer' : 'helper')}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold
-                       transition-all active:scale-95 cursor-pointer"
+          {/* Role Status Badge (Enforced Role - No Arbitrary Switching) */}
+          <div
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold"
             style={{
               fontFamily: 'Sora, sans-serif',
-              background: isHelper ? 'rgba(244,131,31,0.12)' : 'rgba(28,168,156,0.12)',
-              color: isHelper ? '#F4831F' : '#1CA89C',
-              border: `1.5px solid ${isHelper ? 'rgba(244,131,31,0.30)' : 'rgba(28,168,156,0.30)'}`,
+              background: isHelper ? 'rgba(28,168,156,0.12)' : 'rgba(244,131,31,0.12)',
+              color: isHelper ? '#1CA89C' : '#F4831F',
+              border: `1.5px solid ${isHelper ? 'rgba(28,168,156,0.30)' : 'rgba(244,131,31,0.30)'}`,
             }}
           >
             <Briefcase size={13} />
-            <span>{isHelper ? t('switchCustomer') : t('switchHelper')}</span>
-          </button>
+            <span>{isHelper ? '🛠️ Helper Partner' : '🙋 Customer'}</span>
+          </div>
 
           {/* User Profile Avatar / Menu */}
           <div className="relative">
@@ -282,25 +279,6 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
                     </button>
 
                     <div className="my-1 border-t" style={{ borderColor: 'var(--hj-line)' }} />
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        setMode(isHelper ? 'customer' : 'helper');
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold
-                                 transition-colors cursor-pointer text-left"
-                      style={{
-                        color: isHelper ? '#F4831F' : '#1CA89C',
-                        background: isHelper ? 'rgba(244,131,31,0.08)' : 'rgba(28,168,156,0.08)',
-                      }}
-                    >
-                      <Briefcase size={14} />
-                      <span>
-                        {isHelper ? t('switchCustomer') : t('switchHelper')}
-                      </span>
-                    </button>
 
                     <button
                       type="button"

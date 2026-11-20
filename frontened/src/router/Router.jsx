@@ -56,11 +56,11 @@ import AdminProtectedRoute from './AdminProtectedRoute';
 // ── Landing with navigation helpers ─────────────────────────────────────────
 function LandingWithNav() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const onGetStarted = () => {
     if (isAuthenticated) {
-      navigate('/customer/home');
+      navigate(user?.role === 'helper' ? '/helper/home' : '/customer/home');
     } else {
       navigate('/auth');
     }
@@ -68,15 +68,15 @@ function LandingWithNav() {
 
   const onBecomeHelper = () => {
     if (isAuthenticated) {
-      navigate('/helper/home');
+      navigate(user?.role === 'helper' ? '/helper/home' : '/customer/home');
     } else {
-      navigate('/auth');
+      navigate('/auth?role=helper');
     }
   };
 
   const onSelectService = (catId) => {
     if (isAuthenticated) {
-      navigate(`/customer/service/${catId}`);
+      navigate(user?.role === 'helper' ? '/helper/home' : `/customer/service/${catId}`);
     } else {
       navigate(`/auth?redirect=${encodeURIComponent(`/customer/service/${catId}`)}`);
     }

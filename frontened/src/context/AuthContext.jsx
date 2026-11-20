@@ -1,6 +1,13 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import api, { setAccessToken, setOnRefreshFailed } from '../utils/apiClient';
-import { signInWithGoogle, firebaseSignOut } from '../firebase/firebase';
+import {
+  signInWithGoogle,
+  firebaseSignOut,
+  signUpWithFirebaseEmail,
+  resendVerificationEmail,
+  signInWithFirebaseEmail,
+  checkEmailVerified,
+} from '../firebase/firebase';
 
 const AuthContext = createContext(null);
 
@@ -92,14 +99,14 @@ export function AuthProvider({ children }) {
   }, [persistAuth]);
 
   // ── Signup ────────────────────────────────────────────────────────────────────
-  const signup = useCallback(async ({ name, phone, email, password, role }) => {
+  const signup = useCallback(async (signupData) => {
     setAuthLoading(true);
     setAuthError(null);
     try {
-      const res = await api.post('/auth/signup', { name, phone, email, password, role });
+      const res = await api.post('/auth/signup', signupData);
       const { user: userData, accessToken: token } = res.data;
       persistAuth(userData, token);
-      return true;
+      return userData || true;
     } catch (err) {
       setAuthError(err?.message || 'Signup failed. Please check your details and try again.');
       return false;
@@ -216,6 +223,10 @@ export function AuthProvider({ children }) {
     authError,
     isAuthenticated: !!user,
     loginWithGoogle,
+    signUpWithFirebaseEmail,
+    resendVerificationEmail,
+    signInWithFirebaseEmail,
+    checkEmailVerified,
     sendOtp,
     verifyOtp,
     signup,

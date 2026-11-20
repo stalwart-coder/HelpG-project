@@ -1,12 +1,19 @@
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import TopBar from '../components/TopBar';
 import BottomNav from '../components/BottomNav';
 
 export default function HelperShell() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { mode, switchMode } = useApp();
+
+  // Strict Role Guard: Only Helper (or Admin) can access Helper Portal
+  if (user && user.role === 'customer') {
+    return <Navigate to="/customer/home" replace />;
+  }
 
   const handleExit = () => navigate('/');
   const handleSwitchMode = (m) => {

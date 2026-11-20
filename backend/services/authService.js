@@ -33,12 +33,14 @@ function generateOtp(length = OTP_LENGTH) {
  * @returns {Object} { user, accessToken, refreshToken }
  */
 export async function signup(data) {
-  const { name, phone, email, password, role } = data;
+  const { name, phone, email, password, role, locality, location, skills, vehicle, isEmailVerified } = data;
 
-  // Check if user already exists with phone
-  const existingUser = await User.findOne({ phone });
-  if (existingUser) {
-    throw new ApiError(409, 'An account with this phone number already exists.');
+  // Check if user already exists with phone (if provided)
+  if (phone) {
+    const existingUser = await User.findOne({ phone });
+    if (existingUser) {
+      throw new ApiError(409, 'An account with this phone number already exists.');
+    }
   }
 
   // Check if email is already taken (if provided)
@@ -49,14 +51,32 @@ export async function signup(data) {
     }
   }
 
+  const assignedRole = ['customer', 'helper'].includes(role) ? role : 'customer';
+
   const user = await User.create({
     name,
-    phone,
+    ...(phone && { phone }),
     ...(email && { email }),
     password,
-    role: role || 'customer',
-    isPhoneVerified: true, // phone verified via OTP before signup
+    role: assignedRole,
+    locality: locality || location || '',
+    isPhoneVerified: Boolean(phone),
+    isEmailVerified: isEmailVerified !== undefined ? Boolean(isEmailVerified) : Boolean(email),
   });
+
+  // If role is helper, automatically initialize their HelperProfile
+  if (assignedRole === 'helper') {
+    try {
+      const HelperProfile = (await import('../models/HelperProfile.js')).default;
+      await HelperProfile.create({
+        userId: user._id,
+        skills: Array.isArray(skills) ? skills : (skills ? [skills] : ['iron']),
+        vehicle: vehicle || 'scooter',
+      });
+    } catch (profileErr) {
+      logger.warn('HelperProfile creation note:', profileErr.message);
+    }
+  }
 
   const tokens = generateAuthTokens(user);
   user.refreshToken = tokens.refreshToken;

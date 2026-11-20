@@ -1,12 +1,19 @@
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import TopBar from '../components/TopBar';
 import BottomNav from '../components/BottomNav';
 
 export default function CustomerShell() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { mode, switchMode } = useApp();
+
+  // Strict Role Guard: Only Customer (or Admin) can access Customer Portal
+  if (user && user.role === 'helper') {
+    return <Navigate to="/helper/home" replace />;
+  }
 
   const handleExit = () => navigate('/');
   const handleSwitchMode = (m) => {

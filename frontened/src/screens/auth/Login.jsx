@@ -62,25 +62,9 @@ export default function Login({ onNavigate }) {
     try {
       const res = await loginWithGoogle('customer');
       if (res?.success) {
-        onNavigate?.('app', 'customer');
+        const targetRole = res.user?.role === 'helper' ? 'helper' : 'customer';
+        onNavigate?.('app', targetRole);
       }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleQuickLogin = async (role) => {
-    if (isSubmitting || authLoading) return;
-    setIsSubmitting(true);
-    clearError();
-    try {
-      const creds = role === 'helper'
-        ? { emailOrPhone: 'helper@helpji.com', password: 'Password@123' }
-        : { emailOrPhone: 'customer@helpji.com', password: 'Password@123' };
-      setEmailOrPhone(creds.emailOrPhone);
-      setPassword(creds.password);
-      const loggedUser = await login(creds);
-      if (loggedUser) onNavigate?.('app', role);
     } finally {
       setIsSubmitting(false);
     }
@@ -135,57 +119,6 @@ export default function Login({ onNavigate }) {
           <p className="text-sm" style={{ color: 'var(--hj-ink-soft)', fontFamily: 'DM Sans, sans-serif' }}>
             {t('loginSubtext')}
           </p>
-        </div>
-
-        {/* ⚡ Quick Demo Logins */}
-        <div
-          className="mb-6 p-3.5 rounded-2xl"
-          style={{
-            background: 'rgba(244,131,31,0.06)',
-            border: '1px solid rgba(244,131,31,0.20)',
-          }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span
-              className="text-[11px] font-bold tracking-wider uppercase"
-              style={{ fontFamily: 'JetBrains Mono, monospace', color: '#E06A08' }}
-            >
-              {t('quickDemoLabel')}
-            </span>
-            <span
-              className="text-[10px]"
-              style={{ color: '#E06A08', fontFamily: 'DM Sans, sans-serif' }}
-            >
-              {t('quickDemoSub')}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { role: 'customer', emoji: '🙋', label: 'Demo Customer', email: 'customer@helpji.com' },
-              { role: 'helper',   emoji: '🛠️', label: 'Demo Helper',   email: 'helper@helpji.com'   },
-            ].map((d) => (
-              <button
-                key={d.role}
-                type="button"
-                onClick={() => handleQuickLogin(d.role)}
-                disabled={authLoading}
-                className="px-3 py-2 rounded-xl text-left flex flex-col
-                           active:scale-[0.97] transition-all disabled:opacity-50"
-                style={{
-                  background: 'var(--hj-paper-card)',
-                  border: '1px solid rgba(244,131,31,0.20)',
-                  fontFamily: 'DM Sans, sans-serif',
-                }}
-              >
-                <span className="text-xs font-semibold" style={{ color: 'var(--hj-ink)' }}>
-                  {d.emoji} {d.label}
-                </span>
-                <span className="text-[10px] mt-0.5" style={{ color: 'var(--hj-ink-muted)' }}>
-                  {d.email}
-                </span>
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Form */}
