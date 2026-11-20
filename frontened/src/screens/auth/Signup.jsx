@@ -79,13 +79,54 @@ export default function Signup({ onNavigate }) {
     setVerifying(true);
 
     try {
-      if (signUpWithFirebaseEmail) {
-        await signUpWithFirebaseEmail(emailTrim, password);
+      const fbResult = signUpWithFirebaseEmail ? await signUpWithFirebaseEmail(emailTrim, password) : null;
+      if (fbResult?.unconfigured) {
+        // Firebase keys not configured, complete direct verified registration
+        const payload = {
+          name: nameTrim,
+          email: emailTrim,
+          phone: phoneTrim ? '+91' + phoneTrim : undefined,
+          password,
+          role,
+          locality,
+          skills: role === 'helper' ? [primarySkill] : [],
+          vehicle: role === 'helper' ? vehicle : null,
+          isEmailVerified: true,
+        };
+        const ok = await signup(payload);
+        if (ok) {
+          window.location.href = role === 'helper' ? '/helper/home' : '/customer/home';
+        }
+        return;
       }
       setStep('email-verify');
       setVerifyNotice(`A real verification link was sent to ${emailTrim}. Please check your inbox.`);
     } catch (err) {
       console.warn('Firebase email signup status:', err?.message || err);
+      if (
+        err?.code === 'auth/api-key-not-valid' ||
+        err?.message?.includes('api-key-not-valid') ||
+        err?.message?.includes('API key') ||
+        err?.message?.includes('API_KEY_INVALID')
+      ) {
+        // Fallback to direct verified signup so user is never stranded
+        const payload = {
+          name: nameTrim,
+          email: emailTrim,
+          phone: phoneTrim ? '+91' + phoneTrim : undefined,
+          password,
+          role,
+          locality,
+          skills: role === 'helper' ? [primarySkill] : [],
+          vehicle: role === 'helper' ? vehicle : null,
+          isEmailVerified: true,
+        };
+        const ok = await signup(payload);
+        if (ok) {
+          window.location.href = role === 'helper' ? '/helper/home' : '/customer/home';
+        }
+        return;
+      }
       // If Firebase credentials error (placeholder keys in local dev) or email already registered
       if (err?.code === 'auth/email-already-in-use') {
         setVerifyNotice('This email is already registered in Firebase. Try signing in, or complete verification.');

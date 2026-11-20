@@ -74,6 +74,15 @@ export function AuthProvider({ children }) {
         setAuthError(null);
         return { success: false, cancelled: true };
       }
+      if (
+        err?.code === 'auth/api-key-not-valid' ||
+        err?.message?.includes('api-key-not-valid') ||
+        err?.message?.includes('API key') ||
+        err?.message?.includes('API_KEY_INVALID')
+      ) {
+        setAuthError('Firebase API key not configured yet. Please configure your Firebase Web credentials in Vercel settings, or sign in with Email & Password.');
+        return { success: false };
+      }
       setAuthError(err?.message || 'Google sign-in failed. Please try again.');
       return { success: false };
     } finally {

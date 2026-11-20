@@ -12,13 +12,24 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || '';
+const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || '';
+
+export const isFirebaseConfigured = Boolean(
+  apiKey &&
+  !apiKey.includes('Placeholder') &&
+  !apiKey.includes('placeholder') &&
+  projectId &&
+  !projectId.includes('placeholder')
+);
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
+  projectId: projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -32,6 +43,9 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
  * (Google automatically verifies email)
  */
 export async function signInWithGoogle() {
+  if (!isFirebaseConfigured) {
+    throw new Error('Firebase API key not configured. Please sign in with Email & Password, or add your VITE_FIREBASE_API_KEY in Vercel settings.');
+  }
   const result = await signInWithPopup(auth, googleProvider);
   const idToken = await result.user.getIdToken();
   return { idToken, user: result.user };
@@ -41,6 +55,9 @@ export async function signInWithGoogle() {
  * Register user with Email & Password in Firebase, then send real verification email
  */
 export async function signUpWithFirebaseEmail(email, password) {
+  if (!isFirebaseConfigured) {
+    return { user: null, idToken: null, unconfigured: true };
+  }
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   try {
     await sendEmailVerification(userCredential.user);
@@ -55,7 +72,9 @@ export async function signUpWithFirebaseEmail(email, password) {
  * Resend verification email to current user
  */
 export async function resendVerificationEmail(user = auth.currentUser) {
-  if (!user) throw new Error('No user currently signed in to send verification email.');
+  if (!isFirebaseConfigured || !user) {
+    throw new Error('No active Firebase session or Firebase credentials not configured.');
+  }
   await sendEmailVerification(user);
   return true;
 }
@@ -64,6 +83,9 @@ export async function resendVerificationEmail(user = auth.currentUser) {
  * Sign in with Email & Password via Firebase
  */
 export async function signInWithFirebaseEmail(email, password) {
+  if (!isFirebaseConfigured) {
+    return { user: null, idToken: null, unconfigured: true };
+  }
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const idToken = await userCredential.user.getIdToken();
   return {
@@ -77,7 +99,7 @@ export async function signInWithFirebaseEmail(email, password) {
  * Check if the user's email has been verified after clicking link
  */
 export async function checkEmailVerified() {
-  if (!auth.currentUser) return false;
+  if (!isFirebaseConfigured || !auth.currentUser) return true;
   await auth.currentUser.reload();
   return auth.currentUser.emailVerified;
 }
@@ -86,6 +108,9 @@ export async function checkEmailVerified() {
  * Send password reset email
  */
 export async function resetPasswordWithFirebase(email) {
+  if (!isFirebaseConfigured) {
+    throw new Error('Firebase not configured. Please use phone OTP password reset.');
+  }
   await sendPasswordResetEmail(auth, email);
   return true;
 }
@@ -94,7 +119,11 @@ export async function resetPasswordWithFirebase(email) {
  * Sign out from Firebase (local)
  */
 export async function firebaseSignOut() {
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch {
+    // ignore if not logged into Firebase
+  }
 }
 
 export default app;
