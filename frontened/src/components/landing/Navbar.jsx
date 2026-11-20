@@ -98,13 +98,6 @@ export default function Navbar({ onGetStarted, onBecomeHelper, onSelectService }
           <ThemeToggle />
           <button
             type="button"
-            onClick={becomeHelper}
-            className="text-xs font-bold text-slate-700 dark:text-slate-200 px-3.5 py-2 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-          >
-            {t('becomeHelperNav')}
-          </button>
-          <button
-            type="button"
             onClick={getStarted}
             className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-slate-950 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95"
           >
@@ -142,13 +135,6 @@ export default function Navbar({ onGetStarted, onBecomeHelper, onSelectService }
               disabled={searching}
             />
           </div>
-          <button 
-            type="button" 
-            onClick={becomeHelper} 
-            className="text-left text-sm font-semibold text-slate-700 dark:text-slate-300 py-2 border-b border-slate-100 dark:border-slate-800"
-          >
-            🛠️ {t('becomeHelperNav')}
-          </button>
           <button 
             type="button" 
             onClick={getStarted} 
