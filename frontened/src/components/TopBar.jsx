@@ -3,7 +3,7 @@
  * Clean, full-width, high-contrast light and dark mode header.
  */
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { formatLocation } from '../utils/format';
@@ -19,16 +19,22 @@ import {
   MessageSquare,
   LifeBuoy,
   ShieldAlert,
+  ShieldCheck,
 } from 'lucide-react';
 
-export default function TopBar({ mode = 'customer', setMode, onExit }) {
+export default function TopBar({ mode, setMode, onExit }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
-  const isHelper = mode === 'helper';
+  const isHelper =
+    mode === 'helper' ||
+    location.pathname.startsWith('/helper') ||
+    user?.role === 'helper';
+
   const displayName = user?.name?.split(' ')[0] || (isHelper ? 'Helper' : 'User');
   const initials = (user?.name || (isHelper ? 'H' : 'U'))[0].toUpperCase();
 
@@ -276,6 +282,18 @@ export default function TopBar({ mode = 'customer', setMode, onExit }) {
                     >
                       <ShieldAlert size={14} />
                       <span>Emergency SOS</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate('/admin/tickets');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-amber-50 dark:hover:bg-amber-950/30 text-amber-600 dark:text-amber-400 text-left transition-colors cursor-pointer"
+                    >
+                      <ShieldCheck size={14} className="text-amber-500" />
+                      <span>Admin Ticket Center (Resolve)</span>
                     </button>
 
                     <div className="my-1 border-t" style={{ borderColor: 'var(--hj-line)' }} />

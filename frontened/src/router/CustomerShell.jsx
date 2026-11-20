@@ -49,7 +49,7 @@ export default function CustomerShell() {
       className="w-full min-h-screen relative pb-28 transition-colors duration-200"
       style={{ background: 'var(--hj-paper)', color: 'var(--hj-ink)' }}
     >
-      <TopBar mode={mode} setMode={handleSwitchMode} onExit={handleExit} />
+      <TopBar mode="customer" setMode={handleSwitchMode} onExit={handleExit} />
       <main className="w-full max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         <Outlet />
       </main>
