@@ -12,8 +12,12 @@ import {
   sendPasswordResetEmail,
 } from 'firebase/auth';
 
-const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || '';
-const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || '';
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCGuf7WyziATIoWjLMy6_fwb2ML8WunEs4';
+const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'helpji.firebaseapp.com';
+const projectId = import.meta.env.VITE_FIREBASE_PROJECT_ID || 'helpji';
+const storageBucket = import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'helpji.firebasestorage.app';
+const messagingSenderId = import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '272825828442';
+const appId = import.meta.env.VITE_FIREBASE_APP_ID || '1:272825828442:web:5b74ab050d7a6c2d1bc463';
 
 export const isFirebaseConfigured = Boolean(
   apiKey &&
@@ -25,11 +29,11 @@ export const isFirebaseConfigured = Boolean(
 
 const firebaseConfig = {
   apiKey: apiKey,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || `${projectId}.firebaseapp.com`,
+  authDomain: authDomain,
   projectId: projectId,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  storageBucket: storageBucket,
+  messagingSenderId: messagingSenderId,
+  appId: appId,
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
