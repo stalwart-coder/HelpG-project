@@ -107,7 +107,10 @@ export default function Signup({ onNavigate }) {
         err?.code === 'auth/api-key-not-valid' ||
         err?.message?.includes('api-key-not-valid') ||
         err?.message?.includes('API key') ||
-        err?.message?.includes('API_KEY_INVALID')
+        err?.message?.includes('API_KEY_INVALID') ||
+        err?.code === 'auth/configuration-not-found' ||
+        err?.message?.includes('configuration-not-found') ||
+        err?.message?.includes('CONFIGURATION_NOT_FOUND')
       ) {
         // Fallback to direct verified signup so user is never stranded
         const payload = {

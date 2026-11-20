@@ -75,12 +75,20 @@ export function AuthProvider({ children }) {
         return { success: false, cancelled: true };
       }
       if (
+        err?.code === 'auth/configuration-not-found' ||
+        err?.message?.includes('CONFIGURATION_NOT_FOUND') ||
+        err?.message?.includes('configuration-not-found')
+      ) {
+        setAuthError('Firebase Console me Authentication abhi "Get started" nahi kiya gaya hai. Firebase Console -> Authentication -> "Get started" button dabayein.');
+        return { success: false };
+      }
+      if (
         err?.code === 'auth/api-key-not-valid' ||
         err?.message?.includes('api-key-not-valid') ||
         err?.message?.includes('API key') ||
         err?.message?.includes('API_KEY_INVALID')
       ) {
-        setAuthError('Firebase API key not configured yet. Please configure your Firebase Web credentials in Vercel settings, or sign in with Email & Password.');
+        setAuthError('Firebase API key configure nahi hai. Please sign in with Email & Password.');
         return { success: false };
       }
       setAuthError(err?.message || 'Google sign-in failed. Please try again.');
