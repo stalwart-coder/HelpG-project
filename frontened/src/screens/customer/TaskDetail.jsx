@@ -222,6 +222,27 @@ export default function TaskDetail({
             <span>Doorstep Service • Approx. 35 mins</span>
           </div>
         </div>
+
+        {/* Live Chat & Support Action Buttons */}
+        <div className="pt-3 border-t flex flex-wrap gap-2 text-xs" style={{ borderColor: 'var(--hj-line)' }}>
+          <button
+            type="button"
+            onClick={() => setShowChatDrawer(true)}
+            className="flex-1 min-w-[140px] py-2.5 px-3 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:opacity-90"
+            style={{ background: '#F4831F' }}
+          >
+            <MessageSquare size={14} />
+            <span>Chat with Helper</span>
+          </button>
+          <button
+            type="button"
+            onClick={onReportIssue}
+            className="py-2.5 px-4 rounded-xl font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            style={{ background: 'var(--hj-paper)', border: '1px solid var(--hj-line)', color: 'var(--hj-ink)' }}
+          >
+            <span>🎧 Raise Support Ticket</span>
+          </button>
+        </div>
       </div>
 
       {/* ── 3. Post-Completion Actions (Rating & Tipping) ── */}

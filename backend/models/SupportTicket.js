@@ -1,14 +1,22 @@
 import mongoose from 'mongoose';
 
 const TICKET_STATUSES = ['open', 'assigned', 'in_progress', 'resolved', 'closed'];
-const TICKET_PRIORITIES = ['low', 'normal', 'high', 'urgent'];
+const TICKET_PRIORITIES = ['low', 'normal', 'medium', 'high', 'urgent'];
 const TICKET_CATEGORIES = [
+  'booking',
   'booking_issue',
+  'payment',
   'payment_issue',
+  'service',
+  'service_quality',
+  'account',
+  'account_issue',
+  'helper',
   'helper_issue',
   'kyc_issue',
-  'account_issue',
   'technical_issue',
+  'feedback',
+  'other',
   'general',
 ];
 

@@ -1,11 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronLeft, Send, Paperclip, Phone, Image, Loader2, Info, CheckCheck } from 'lucide-react';
+import { io } from 'socket.io-client';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/apiClient';
 import { getAiStatus, getChatSuggestion } from '../../utils/aiApi';
 
-const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+function resolveSocketUrl() {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (apiUrl) {
+    return apiUrl.replace(/\/api\/?$/, '');
+  }
+  return import.meta.env.PROD ? 'https://helpji-backend.onrender.com' : 'http://localhost:5000';
+}
+
+const API_BASE = resolveSocketUrl();
 
 const cannedReplies = [
   'I am on my way.',
@@ -20,13 +29,15 @@ const cannedReplies = [
 let socketInstance = null;
 function getSocket(token) {
   if (socketInstance && socketInstance.connected) return socketInstance;
-  // Dynamically import socket.io-client to avoid loading it if chat never opened
-  if (typeof window !== 'undefined' && window.io) {
-    socketInstance = window.io(API_BASE, {
-      auth: { token },
-      transports: ['websocket'],
+  try {
+    const effectiveToken = token || (typeof localStorage !== 'undefined' ? (localStorage.getItem('helpji_token') || localStorage.getItem('token')) : '');
+    socketInstance = io(API_BASE, {
+      auth: { token: effectiveToken },
+      transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,
     });
+  } catch (err) {
+    console.warn('Socket connection error:', err);
   }
   return socketInstance;
 }
@@ -217,11 +228,23 @@ export default function ChatConversation({ conversation, onBack }) {
   };
 
   // ── Helpers for message rendering ───────────────────────────────────────
+  const currentUserId = (user?._id || user?.id)?.toString();
+
   const getMessageSenderId = (msg) => {
-    return msg?.senderId?._id?.toString() || msg?.senderId?.toString();
+    return msg?.senderId?._id?.toString() || msg?.senderId?.toString() || msg?.sender?._id?.toString() || msg?.sender?.toString();
   };
 
-  const isOwnMessage = (msg) => getMessageSenderId(msg) === user?._id?.toString();
+  const isOwnMessage = (msg) => {
+    const sId = getMessageSenderId(msg);
+    return Boolean(sId && currentUserId && sId === currentUserId);
+  };
+
+  const otherParticipant = conversation?.participants?.find(
+    (p) => String(p._id || p.id) !== currentUserId
+  );
+  const displayName = otherParticipant?.name || conversation?.name || 'HelpJi Partner / Customer';
+  const displayAvatar = otherParticipant?.avatar || conversation?.imageUrl || null;
+  const initials = displayName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 
   if (!conversation) {
     return (
@@ -240,28 +263,35 @@ export default function ChatConversation({ conversation, onBack }) {
             <ChevronLeft size={20} />
           </button>
 
-          {conversation.imageUrl ? (
-            <img src={conversation.imageUrl} alt={conversation.name} className="w-[42px] h-[42px] rounded-full object-cover" />
+          {displayAvatar ? (
+            <img src={displayAvatar} alt={displayName} className="w-[42px] h-[42px] rounded-full object-cover" />
           ) : (
             <div className="w-[42px] h-[42px] rounded-full bg-ink text-marigold flex items-center justify-center font-bold text-sm font-display">
-              {conversation.initials || conversation.name?.[0] || '?'}
+              {initials || displayName?.[0] || '?'}
             </div>
           )}
 
           <div className="flex-1 min-w-0">
-            <h2 className="text-[14px] font-semibold truncate">{conversation.name}</h2>
+            <h2 className="text-[14px] font-semibold truncate">{displayName}</h2>
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${
                 conversation.status === 'online' ? 'bg-banyan' : conversation.status === 'away' ? 'bg-marigold' : 'bg-line'
               }`} />
               <span className="text-[11px] text-ink-soft capitalize">
-                {isTyping ? 'typing...' : (conversation.status || 'offline')}
+                {isTyping ? 'typing...' : (conversation.status || 'Active')}
                 {conversation.taskId && ` · #${conversation.taskId}`}
               </span>
             </div>
           </div>
 
-          <button className="p-2 text-ink-soft hover:text-ink rounded-full hover:bg-paper" aria-label="Call">
+          <button
+            onClick={() => {
+              const phone = otherParticipant?.phone || '9532094712';
+              window.open(`tel:${phone}`);
+            }}
+            className="p-2 text-ink-soft hover:text-ink rounded-full hover:bg-paper"
+            aria-label="Call"
+          >
             <Phone size={18} />
           </button>
         </div>

@@ -28,10 +28,10 @@ router.post(
       .isLength({ max: 2000 })
       .withMessage('Description must not exceed 2000 characters'),
     body('category').optional().isString(),
-    body('bookingId').optional().isMongoId().withMessage('Valid booking ID is required'),
+    body('bookingId').optional({ checkFalsy: true }),
     body('priority')
       .optional()
-      .isIn(['low', 'medium', 'high', 'urgent'])
+      .isIn(['low', 'normal', 'medium', 'high', 'urgent'])
       .withMessage('Invalid priority'),
   ],
   validate,
@@ -44,7 +44,7 @@ router.get('/tickets', supportController.getMyTickets);
 // GET /api/support/tickets/:ticketId — get a single ticket
 router.get(
   '/tickets/:ticketId',
-  [param('ticketId').isMongoId().withMessage('Valid ticket ID is required')],
+  [param('ticketId').trim().notEmpty().withMessage('Valid ticket ID is required')],
   validate,
   supportController.getTicketById
 );
@@ -53,7 +53,7 @@ router.get(
 router.post(
   '/tickets/:ticketId/reply',
   [
-    param('ticketId').isMongoId().withMessage('Valid ticket ID is required'),
+    param('ticketId').trim().notEmpty().withMessage('Valid ticket ID is required'),
     body('content')
       .isString()
       .trim()
@@ -69,7 +69,7 @@ router.post(
 // PATCH /api/support/tickets/:ticketId/close — user closes ticket
 router.patch(
   '/tickets/:ticketId/close',
-  [param('ticketId').isMongoId().withMessage('Valid ticket ID is required')],
+  [param('ticketId').trim().notEmpty().withMessage('Valid ticket ID is required')],
   validate,
   supportController.closeTicket
 );

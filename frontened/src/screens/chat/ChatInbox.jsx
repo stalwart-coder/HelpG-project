@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ChevronLeft, MoreHorizontal, Check, CheckCheck, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { EmptyState } from '../../components/ui/PageState';
 import api from '../../utils/apiClient';
 
@@ -28,6 +30,10 @@ function timeAgo(dateStr) {
 
 export default function ChatInbox({ onBack, onSelectConversation }) {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const currentUserId = (user?._id || user?.id)?.toString();
+
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -58,7 +64,8 @@ export default function ChatInbox({ onBack, onSelectConversation }) {
     let list = [...conversations];
     if (searchTrim) {
       list = list.filter(c => {
-        const name = (c.participants?.find(p => p._id !== c.currentUserId)?.name ?? c.name ?? '').toLowerCase();
+        const other = c.participants?.find(p => String(p._id || p.id) !== currentUserId);
+        const name = (other?.name ?? c.name ?? '').toLowerCase();
         const last = (c.lastMessage?.content ?? c.lastMessage ?? '').toLowerCase();
         return name.includes(searchTrim) || last.includes(searchTrim);
       });
@@ -71,7 +78,7 @@ export default function ChatInbox({ onBack, onSelectConversation }) {
       return new Date(b.lastMessage?.createdAt ?? b.updatedAt ?? 0) - new Date(a.lastMessage?.createdAt ?? a.updatedAt ?? 0);
     });
     return list;
-  }, [conversations, searchTrim, filter]);
+  }, [conversations, searchTrim, filter, currentUserId]);
 
   if (loading) {
     return (
@@ -142,15 +149,31 @@ export default function ChatInbox({ onBack, onSelectConversation }) {
       {/* Conversation list */}
       <div className="px-3 py-2">
         {filtered.length === 0 ? (
-          <div className="mt-8">
+          <div className="mt-8 text-center px-4">
             <EmptyState
-              title="No conversations found"
-              subtitle={searchTrim ? 'Try a different search term.' : 'No chats yet. Start by posting a task.'}
+              title="No conversations yet"
+              subtitle={searchTrim ? 'Try a different search term.' : 'You have no active message conversations.'}
             />
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => navigate(user?.role === 'helper' ? '/helper/support' : '/customer/support')}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-marigold text-ink flex items-center justify-center gap-2 hover:bg-marigold-deep transition-all shadow-sm cursor-pointer"
+              >
+                <span>🎧 Help & Support Tickets</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(user?.role === 'helper' ? '/helper/bookings' : '/customer/tasks')}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-semibold bg-white border border-line text-ink flex items-center justify-center gap-2 hover:bg-paper transition-all cursor-pointer"
+              >
+                <span>📋 View My Bookings</span>
+              </button>
+            </div>
           </div>
         ) : (
           filtered.map((conv) => {
-            const other = conv.participants?.find(p => p._id !== conv.currentUserId) ?? {};
+            const other = conv.participants?.find(p => String(p._id || p.id) !== currentUserId) ?? {};
             const displayName = other.name ?? conv.name ?? 'Unknown';
             const initials = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
             const lastMsg = conv.lastMessage?.content ?? conv.lastMessage ?? '';
